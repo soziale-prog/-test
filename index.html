@@ -1,70 +1,60 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <title>VK Mini App Demo</title>
-  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-    const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co'
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluendsYWNnaGh6bHpkdXZ2bHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzg2NjEsImV4cCI6MjA3Nzc1NDY2MX0.r7H8cHfQfM9_FZiibCa-J6Gt6yGd4p-FCdS2FsFO3C8'
+  const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co'
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluendsYWNnaGh6bHpkdXZ2bHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzg2NjEsImV4cCI6MjA3Nzc1NDY2MX0.r7H8cHfQfM9_FZiibCa-J6Gt6yGd4p-FCdS2FsFO3C8'
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+  async function initVK() {
+    await vkBridge.send('VKWebAppInit')
+    const user = await vkBridge.send('VKWebAppGetUserInfo')
+    return user
+  }
 
-    // Инициализация VK
-    async function initVKUser() {
-      await vkBridge.send('VKWebAppInit')
-      const vkUser = await vkBridge.send('VKWebAppGetUserInfo')
-      const vk_id = BigInt(vkUser.id).toString()
-      const name = vkUser.first_name
+  async function loadUser(vkUser) {
+    const vk_id = BigInt(vkUser.id).toString()
+    const name = vkUser.first_name
 
-      // Проверка в базе
-      const { data: existing } = await supabase
-        .from('users')
-        .select('*')
-        .eq('vk_id', vk_id)
-        .limit(1)
+    const { data: existing } = await supabase
+      .from('users')
+      .select('*')
+      .eq('vk_id', vk_id)
+      .limit(1)
 
-      if (existing.length > 0) {
-        return existing[0]
-      }
+    if (existing.length > 0) return existing[0]
 
-      // Создание нового пользователя
-      const { data: newUser } = await supabase
-        .from('users')
-        .insert([{ vk_id, name, score: 0 }])
-        .select()
+    const { data: inserted } = await supabase
+      .from('users')
+      .insert([{ vk_id, name, score: 0 }])
+      .select()
 
-      return newUser[0]
-    }
+    return inserted[0]
+  }
 
-    let currentUser = null
+  async function updateScore(vk_id, score) {
+    const { data } = await supabase
+      .from('users')
+      .update({ score })
+      .eq('vk_id', vk_id)
+      .select()
+    return data[0]
+  }
 
-    async function main() {
-      currentUser = await initVKUser()
-      document.getElementById('status').innerText =
-        `Привет, ${currentUser.name}! У тебя ${currentUser.score} очков.`
-    }
+  let currentUser = null
 
-    async function addPoint() {
-      if (!currentUser) return
-      const { data } = await supabase
-        .from('users')
-        .update({ score: currentUser.score + 1 })
-        .eq('vk_id', currentUser.vk_id)
-        .select()
-      currentUser = data[0]
-      document.getElementById('status').innerText =
-        `Привет, ${currentUser.name}! У тебя ${currentUser.score} очков.`
-    }
+  async function main() {
+    const vkUser = await initVK()
+    currentUser = await loadUser(vkUser)
+    document.getElementById('status').innerText =
+      `Привет, ${currentUser.name}! У тебя ${currentUser.score} очков.`
+  }
 
-    main()
-  </script>
-</head>
-<body>
-  <h1>VK Mini App Demo</h1>
-  <p id="status">Загрузка...</p>
-  <button onclick="addPoint()">+1 очко</button>
-</body>
-</html>
+  async function addPoint() {
+    if (!currentUser) return
+    currentUser = await updateScore(currentUser.vk_id, currentUser.score + 1)
+    document.getElementById('status').innerText =
+      `Привет, ${currentUser.name}! У тебя ${currentUser.score} очков.`
+  }
+
+  main()
+</script>
