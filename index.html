@@ -6,111 +6,146 @@
   <title>Мои напоминания</title>
 
   <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f4f5f8;
-      padding: 20px;
-      color: #222;
-    }
-    h1 {
-      margin-bottom: 10px;
-      font-size: 26px;
-    }
-    .controls {
-      margin-bottom: 15px;
-    }
-    input, button {
-      font-size: 14px;
-      padding: 6px 10px;
-      margin-right: 5px;
-    }
-    button {
-      background: #2787f5;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #1b5dbf;
-    }
-
-    .eventItem {
-      background: white;
-      border-radius: 8px;
-      padding: 8px 10px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      flex-wrap: wrap;
-    }
-
-    .eventItem button.delBtn {
-      background: #ff5c5c;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      font-size: 14px;
-      line-height: 0;
-      margin-left: 8px;
-    }
-    .eventItem button.delBtn:hover {
-      background: #d93535;
-    }
-
-    .editMode input {
-      margin-right: 4px;
-    }
-
-    .saveBtn, .cancelBtn {
-      background: #2787f5;
-      border: none;
-      color: white;
-      padding: 4px 6px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .cancelBtn {
-      background: #ff5c5c;
-    }
-
-.actions {
+<style>
+  body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f4f5f8;
+  padding: 15px;
+  color: #222;
+  max-width: 600px;
+  margin: 0 auto;
+  }
+  
+  h1 {
+  margin-bottom: 10px;
+  font-size: 22px;
+  text-align: center;
+  }
+  
+  .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 12px;
+  }
+  
+  input, button {
+  font-size: 15px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  }
+  
+  input[type="text"] {
+  flex: 1 1 160px;
+  min-width: 140px;
+  }
+  
+  input[type="date"] {
+  flex: 0 0 130px;
+  }
+  
+  button {
+  background: #2787f5;
+  color: white;
+  cursor: pointer;
+  }
+  
+  button:hover {
+  background: #1b5dbf;
+  }
+  
+  .eventItem {
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  position: relative;
+  }
+  
+  .eventItem strong {
+  font-size: 16px;
+  }
+  
+  .eventItem small {
+  font-size: 13px;
+  color: #555;
+  }
+  
+  .actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
   display: flex;
   gap: 4px;
-}
-
-.editBtn, .delBtn {
+  }
+  
+  .editBtn, .delBtn {
   border: none;
   border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  font-size: 15px;
   line-height: 0;
   cursor: pointer;
   color: white;
-}
-
-.editBtn {
-  background: #ffa500; /* оранжевая – редактирование */
-}
-.editBtn:hover {
-  background: #e68a00;
-}
-
-.delBtn {
-  background: #ff5c5c; /* красная – удаление */
-}
-.delBtn:hover {
-  background: #d93535;
-}
-    .saveBtn:hover { background: #1b5dbf; }
-    .cancelBtn:hover { background: #d93535; }
-  </style>
+  }
+  
+  .editBtn {
+  background: #ffa500;
+  }
+  .editBtn:hover { background: #e68a00; }
+  
+  .delBtn {
+  background: #ff5c5c;
+  }
+  .delBtn:hover { background: #d93535; }
+  
+  .editMode {
+  width: 100%;
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  }
+  
+  .editMode input {
+  flex: 1 1 45%;
+  min-width: 120px;
+  padding: 6px 8px;
+  }
+  
+  .saveBtn, .cancelBtn {
+  flex: 1 1 45%;
+  background: #2787f5;
+  color: white;
+  border: none;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  }
+  
+  .cancelBtn {
+  background: #aaa;
+  }
+  
+  .saveBtn:hover { background: #1b5dbf; }
+  .cancelBtn:hover { background: #888; }
+  
+  @media (max-width: 420px) {
+  h1 { font-size: 20px; }
+  .eventItem { padding: 8px; }
+  input, button { font-size: 14px; }
+  .editMode input { flex: 1 1 100%; }
+  .saveBtn, .cancelBtn { flex: 1 1 100%; }
+  }
+</style>
 </head>
 <body>
   <h1>Привет, <span id="username">...</span>!</h1>
