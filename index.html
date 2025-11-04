@@ -68,16 +68,63 @@ function renderEvents(events) {
     const div = document.createElement('div')
     div.className = 'eventItem'
     div.innerHTML = `
-      <div>
+      <div class="viewMode">
         <strong>${ev.title}</strong><br>
         <small>${new Date(ev.event_date).toLocaleDateString()}</small>
       </div>
-      <button data-id="${ev.id}">×</button>
+      <div class="editMode" style="display:none;">
+        <input type="text" value="${ev.title}" class="editTitle" style="width:140px;">
+        <input type="date" value="${ev.event_date}" class="editDate">
+        <button class="saveBtn">💾</button>
+        <button class="cancelBtn">✖</button>
+      </div>
+      <button class="delBtn" data-id="${ev.id}">×</button>
     `
-    div.querySelector('button').addEventListener('click', () => deleteEvent(ev.id))
+
+    const view = div.querySelector('.viewMode')
+    const edit = div.querySelector('.editMode')
+    const del = div.querySelector('.delBtn')
+    const save = div.querySelector('.saveBtn')
+    const cancel = div.querySelector('.cancelBtn')
+
+    // === Удалить ===
+    del.addEventListener('click', () => deleteEvent(ev.id))
+
+    // === Включить редактирование ===
+    view.addEventListener('click', () => {
+      view.style.display = 'none'
+      edit.style.display = 'block'
+    })
+
+    // === Отмена редактирования ===
+    cancel.addEventListener('click', () => {
+      edit.style.display = 'none'
+      view.style.display = 'block'
+    })
+
+    // === Сохранение изменений ===
+    save.addEventListener('click', async () => {
+      const newTitle = edit.querySelector('.editTitle').value.trim()
+      const newDate = edit.querySelector('.editDate').value
+      if (!newTitle || !newDate) return
+
+      const { error } = await supabase
+        .from('events')
+        .update({ title: newTitle, event_date: newDate })
+        .eq('id', ev.id)
+
+      if (error) {
+        console.error('Ошибка обновления:', error)
+        alert('Ошибка при сохранении!')
+      } else {
+        loadEvents()
+      }
+    })
+
     list.appendChild(div)
   }
 }
+
 
     async function main() {
       const vkUser = await initVK()
@@ -96,46 +143,37 @@ function renderEvents(events) {
   </script>
 
   <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f4f5f8;
-      padding: 20px;
-      color: #222;
-    }
-    h1 { margin-bottom: 5px; }
-    .controls { margin-bottom: 15px; }
-    input, button {
-      font-size: 14px;
-      padding: 6px 10px;
-      margin-right: 5px;
-    }
-    button {
-      background: #2787f5;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover { background: #1b5dbf; }
-    .eventItem {
-      background: white;
-      border-radius: 8px;
-      padding: 8px 10px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .eventItem button {
-      background: #ff5c5c;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      font-size: 14px;
-      line-height: 0;
-    }
-    .eventItem button:hover { background: #d93535; }
+.eventItem {
+  background: white;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  flex-wrap: wrap;
+}
+
+.editMode input {
+  margin-right: 4px;
+}
+
+.saveBtn, .cancelBtn {
+  background: #2787f5;
+  border: none;
+  color: white;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancelBtn {
+  background: #ff5c5c;
+}
+
+.saveBtn:hover { background: #1b5dbf; }
+.cancelBtn:hover { background: #d93535; }
   </style>
 </head>
 <body>
@@ -149,6 +187,7 @@ function renderEvents(events) {
   <div id="eventsList"></div>
 </body>
 </html>
+
 
 
 
