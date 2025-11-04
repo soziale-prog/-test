@@ -162,41 +162,50 @@
         <strong>${ev.title}</strong><br>
         <small>${new Date(ev.event_date).toLocaleDateString()}</small>
       </div>
-    <div class="editMode" style="display:none;">
-      <input type="text" value="${ev.title}" class="editTitle" style="width:140px;">
-      <input type="date" value="${ev.event_date}" class="editDate">
-      <button type="button" class="saveBtn">💾 Сохранить</button>
-      <button type="button" class="cancelBtn">Отмена</button>
-    </div>
-      <button class="delBtn" data-id="${ev.id}">×</button>
+
+      <div class="editMode" style="display:none;">
+        <input type="text" value="${ev.title}" class="editTitle" style="width:140px;">
+        <input type="date" value="${ev.event_date}" class="editDate">
+        <button type="button" class="saveBtn">💾 Сохранить</button>
+        <button type="button" class="cancelBtn">Отмена</button>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="editBtn" title="Редактировать">✏️</button>
+        <button type="button" class="delBtn" title="Удалить">×</button>
+      </div>
     `
 
       const view = div.querySelector('.viewMode')
       const edit = div.querySelector('.editMode')
-      const del = div.querySelector('.delBtn')
+      const editBtn = div.querySelector('.editBtn')
+      const delBtn = div.querySelector('.delBtn')
       const save = div.querySelector('.saveBtn')
       const cancel = div.querySelector('.cancelBtn')
 
-      del.addEventListener('click', () => deleteEvent(ev.id))
+      // === Удаление ===
+      delBtn.addEventListener('click', () => deleteEvent(ev.id))
 
-      view.addEventListener('click', () => {
+      // === Включить редактирование ===
+      editBtn.addEventListener('click', () => {
         const prevEdit = document.querySelector('.editMode[style*="block"]')
         if (prevEdit && prevEdit !== edit) {
           prevEdit.style.display = 'none'
           prevEdit.parentElement.querySelector('.viewMode').style.display = 'block'
         }
-
         activeEditId = ev.id
         view.style.display = 'none'
         edit.style.display = 'block'
       })
 
+      // === Отмена ===
       cancel.addEventListener('click', () => {
         edit.style.display = 'none'
         view.style.display = 'block'
         activeEditId = null
       })
 
+      // === Сохранение ===
       save.addEventListener('click', async () => {
         const newTitle = edit.querySelector('.editTitle').value.trim()
         const newDate = edit.querySelector('.editDate').value
