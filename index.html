@@ -7,11 +7,11 @@
 
   <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 <style>
-  body {
+ body {
   font-family: -apple-system, system-ui, sans-serif;
   background: #f0f2f5;
   margin: 0;
-  padding: 12px 10px 40px;
+  padding: 16px 14px 60px;
   color: #222;
   box-sizing: border-box;
   max-width: 480px;
@@ -20,8 +20,9 @@
 }
 
 h1 {
-  font-size: 20px;
-  margin: 10px 0 14px;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 10px 0 18px;
   text-align: center;
   color: #222;
 }
@@ -29,22 +30,22 @@ h1 {
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px;
   justify-content: center;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
 }
 
 input, button {
-  font-size: 15px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  font-size: 17px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
   box-sizing: border-box;
 }
 
 input[type="text"], input[type="date"] {
   flex: 1 1 45%;
-  min-width: 140px;
+  min-width: 160px;
   background: #fff;
 }
 
@@ -53,6 +54,7 @@ button {
   color: white;
   border: none;
   flex: 0 0 auto;
+  font-weight: 500;
 }
 
 button:hover {
@@ -62,38 +64,38 @@ button:hover {
 .eventItem {
   position: relative;
   background: #fff;
-  border-radius: 10px;
-  padding: 10px 12px 12px;
-  margin-bottom: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 14px 16px 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .eventItem strong {
-  font-size: 15px;
+  font-size: 18px;
   display: block;
   word-wrap: break-word;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .eventItem small {
-  color: #666;
-  font-size: 13px;
+  color: #555;
+  font-size: 15px;
 }
 
 .actions {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .editBtn, .delBtn {
   border: none;
   border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  font-size: 15px;
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
   cursor: pointer;
   color: white;
   display: flex;
@@ -112,17 +114,17 @@ button:hover {
 .delBtn:hover { background: #d93535; }
 
 .editMode {
-  margin-top: 8px;
+  margin-top: 10px;
   display: none;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .editMode input {
   flex: 1 1 48%;
-  padding: 7px;
-  font-size: 14px;
-  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 16px;
+  border-radius: 8px;
   border: 1px solid #ccc;
 }
 
@@ -131,10 +133,10 @@ button:hover {
   background: #0077ff;
   border: none;
   color: white;
-  padding: 8px;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .cancelBtn {
@@ -145,13 +147,17 @@ button:hover {
 .cancelBtn:hover { background: #777; }
 
 @media (max-width: 420px) {
-  h1 { font-size: 18px; margin-top: 6px; }
-  input, button { font-size: 14px; padding: 7px 8px; }
-  .controls { gap: 4px; }
-  .eventItem { padding: 8px 10px; }
+  h1 { font-size: 20px; margin-top: 8px; }
+  input, button { font-size: 16px; padding: 10px 12px; }
+  .controls { gap: 6px; }
+  .eventItem { padding: 12px; }
+  .eventItem strong { font-size: 17px; }
+  .actions { top: 6px; right: 6px; }
+  .editBtn, .delBtn { width: 30px; height: 30px; font-size: 16px; }
   .saveBtn, .cancelBtn { flex: 1 1 100%; }
   .editMode input { flex: 1 1 100%; }
 }
+
 
 </style>
 </head>
