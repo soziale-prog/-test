@@ -7,157 +7,156 @@
 
   <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 <style>
- body {
-  font-family: -apple-system, system-ui, sans-serif;
-  background: #f0f2f5;
+/* Мобильный, крупный, без VKUI */
+:root {
+  --maxw: 560px;
+  --pad: 18px;
+  --radius: 14px;
+  --font: 18px;
+  --font-small: 15px;
+  --btn-h: 48px;
+}
+
+html, body {
   margin: 0;
-  padding: 16px 14px 60px;
-  color: #222;
+  padding: 0;
+  background: #f0f2f5;
+  font-family: -apple-system, system-ui, sans-serif;
+  color: #111;
+}
+
+body {
+  padding: calc(var(--pad) + env(safe-area-inset-top)) var(--pad) var(--pad);
+  max-width: var(--maxw);
+  margin: 0 auto;
   box-sizing: border-box;
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 h1 {
-  font-size: 22px;
-  font-weight: 600;
-  margin: 10px 0 18px;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 6px 0 16px;
   text-align: center;
-  color: #222;
 }
 
 .controls {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 0.85fr;
   gap: 10px;
-  justify-content: center;
-  margin-bottom: 20px;
+  align-items: stretch;
+  margin-bottom: 16px;
 }
 
-input, button {
-  font-size: 17px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
+.controls input[type="text"],
+.controls input[type="date"] {
+  height: var(--btn-h);
+  font-size: var(--font);
+  padding: 0 14px;
+  border-radius: var(--radius);
+  border: 1px solid #dcdfe3;
+  background: #fff;
   box-sizing: border-box;
 }
 
-input[type="text"], input[type="date"] {
-  flex: 1 1 45%;
-  min-width: 160px;
-  background: #fff;
-}
-
-button {
-  background: #0077ff;
-  color: white;
+.controls button {
+  grid-column: 1 / -1;
+  height: var(--btn-h);
+  font-size: var(--font);
+  font-weight: 600;
   border: none;
-  flex: 0 0 auto;
-  font-weight: 500;
+  border-radius: var(--radius);
+  background: #0077ff;
+  color: #fff;
 }
 
-button:hover {
-  background: #0060d0;
-}
+.controls button:active { transform: translateY(1px); }
 
 .eventItem {
   position: relative;
   background: #fff;
-  border-radius: 12px;
-  padding: 14px 16px 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
 }
 
 .eventItem strong {
-  font-size: 18px;
+  font-size: 19px;
   display: block;
-  word-wrap: break-word;
   margin-bottom: 4px;
+  word-break: break-word;
 }
 
 .eventItem small {
-  color: #555;
-  font-size: 15px;
+  font-size: var(--font-small);
+  color: #666;
 }
 
 .actions {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   display: flex;
-  gap: 6px;
-}
-
-.editBtn, .delBtn {
-  border: none;
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  font-size: 18px;
-  cursor: pointer;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.editBtn {
-  background: #ffa500;
-}
-.editBtn:hover { background: #e68a00; }
-
-.delBtn {
-  background: #ff5c5c;
-}
-.delBtn:hover { background: #d93535; }
-
-.editMode {
-  margin-top: 10px;
-  display: none;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
+.editBtn, .delBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  display: grid;
+  place-items: center;
+}
+
+.editBtn { background: #ffa500; }
+.editBtn:active { transform: translateY(1px); }
+.delBtn { background: #ff5c5c; }
+.delBtn:active { transform: translateY(1px); }
+
+.editMode {
+  display: none;
+  margin-top: 12px;
+  display: none;
+  gap: 10px;
+}
+
+.editMode.show { display: grid; grid-template-columns: 1fr 0.9fr; }
+
 .editMode input {
-  flex: 1 1 48%;
-  padding: 10px 12px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  height: var(--btn-h);
+  font-size: var(--font);
+  padding: 0 14px;
+  border-radius: var(--radius);
+  border: 1px solid #dcdfe3;
+  background: #fff;
+  box-sizing: border-box;
 }
 
 .saveBtn, .cancelBtn {
-  flex: 1 1 48%;
-  background: #0077ff;
+  height: var(--btn-h);
+  font-size: var(--font);
   border: none;
-  color: white;
-  padding: 10px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
+  border-radius: var(--radius);
+  color: #fff;
 }
 
-.cancelBtn {
-  background: #999;
-}
-
-.saveBtn:hover { background: #0060d0; }
-.cancelBtn:hover { background: #777; }
+.saveBtn { background: #0077ff; }
+.cancelBtn { background: #9aa3ad; }
 
 @media (max-width: 420px) {
-  h1 { font-size: 20px; margin-top: 8px; }
-  input, button { font-size: 16px; padding: 10px 12px; }
-  .controls { gap: 6px; }
-  .eventItem { padding: 12px; }
-  .eventItem strong { font-size: 17px; }
-  .actions { top: 6px; right: 6px; }
-  .editBtn, .delBtn { width: 30px; height: 30px; font-size: 16px; }
-  .saveBtn, .cancelBtn { flex: 1 1 100%; }
-  .editMode input { flex: 1 1 100%; }
+  :root {
+    --font: 17px;
+    --font-small: 14px;
+    --btn-h: 46px;
+  }
+  .controls {
+    grid-template-columns: 1fr;
+  }
+  .editMode.show { grid-template-columns: 1fr; }
 }
-
 
 </style>
 </head>
@@ -326,3 +325,4 @@ button:hover {
   </script>
 </body>
 </html>
+
