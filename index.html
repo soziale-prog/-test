@@ -32,27 +32,20 @@
       renderEvents(data || [])
     }
 
-    async function addEvent_old(title, date) {
-      if (!title || !date) return
-      const { error } = await supabase
-        .from('events')
-        .insert([{ vk_id: currentUser.vk_id, title, event_date: date }])
-      if (error) console.error(error)
-      loadEvents()
-    }
+
 
 async function addEvent(title, date) {
   if (!title || !date) return
-  const safeTitle = encodeURIComponent(title) // защита от нестандартных символов
   const { data, error } = await supabase
     .from('events')
-    .insert([{ vk_id: currentUser.vk_id, title: safeTitle, event_date: date }])
+    .insert([{ vk_id: currentUser.vk_id, title, event_date: date }])
     .select()
 
   console.log('Ответ Supabase:', data, error)
   if (error) alert('Ошибка: ' + error.message)
   else loadEvents()
-} 
+}
+
 
     async function deleteEvent(id) {
       const { error } = await supabase
@@ -63,29 +56,28 @@ async function addEvent(title, date) {
       loadEvents()
     }
 
-    function renderEvents(events) {
-      const list = document.getElementById('eventsList')
-      list.innerHTML = ''
-      if (events.length === 0) {
-        list.innerHTML = '<p>Пока нет событий</p>'
-        return
-      }
+function renderEvents(events) {
+  const list = document.getElementById('eventsList')
+  list.innerHTML = ''
+  if (events.length === 0) {
+    list.innerHTML = '<p>Пока нет событий</p>'
+    return
+  }
 
-      for (const ev of events) {
-        const div = document.createElement('div')
-        div.className = 'eventItem'
-        div.innerHTML = `
-          <div>
-            <strong>${ev.title}</strong><br>
-            <strong>${decodeURIComponent(ev.title)}</strong>
-            <small>${new Date(ev.event_date).toLocaleDateString()}</small>
-          </div>
-          <button data-id="${ev.id}">×</button>
-        `
-        div.querySelector('button').addEventListener('click', () => deleteEvent(ev.id))
-        list.appendChild(div)
-      }
-    }
+  for (const ev of events) {
+    const div = document.createElement('div')
+    div.className = 'eventItem'
+    div.innerHTML = `
+      <div>
+        <strong>${ev.title}</strong><br>
+        <small>${new Date(ev.event_date).toLocaleDateString()}</small>
+      </div>
+      <button data-id="${ev.id}">×</button>
+    `
+    div.querySelector('button').addEventListener('click', () => deleteEvent(ev.id))
+    list.appendChild(div)
+  }
+}
 
     async function main() {
       const vkUser = await initVK()
@@ -157,6 +149,7 @@ async function addEvent(title, date) {
   <div id="eventsList"></div>
 </body>
 </html>
+
 
 
 
