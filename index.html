@@ -162,12 +162,12 @@
         <strong>${ev.title}</strong><br>
         <small>${new Date(ev.event_date).toLocaleDateString()}</small>
       </div>
-      <div class="editMode" style="display:none;">
-        <input type="text" value="${ev.title}" class="editTitle" style="width:140px;">
-        <input type="date" value="${ev.event_date}" class="editDate">
-        <button class="saveBtn">💾 Сохранить</button>
-        <button class="cancelBtn">Отмена</button>
-      </div>
+    <div class="editMode" style="display:none;">
+      <input type="text" value="${ev.title}" class="editTitle" style="width:140px;">
+      <input type="date" value="${ev.event_date}" class="editDate">
+      <button type="button" class="saveBtn">💾 Сохранить</button>
+      <button type="button" class="cancelBtn">Отмена</button>
+    </div>
       <button class="delBtn" data-id="${ev.id}">×</button>
     `
 
