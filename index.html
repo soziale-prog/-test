@@ -31,7 +31,7 @@
       renderEvents(data || [])
     }
 
-    async function addEvent(title, date) {
+    async function addEvent_old(title, date) {
       if (!title || !date) return
       const { error } = await supabase
         .from('events')
@@ -39,6 +39,20 @@
       if (error) console.error(error)
       loadEvents()
     }
+
+async function addEvent(title, date) {
+  if (!title || !date) return
+  console.log('Добавляю событие:', { vk_id: currentUser.vk_id, title, date })
+  const { data, error } = await supabase
+    .from('events')
+    .insert([{ vk_id: currentUser.vk_id, title, event_date: date }])
+    .select()
+
+  console.log('Ответ Supabase:', data, error)
+
+  if (error) alert('Ошибка: ' + error.message)
+  else loadEvents()
+}    
 
     async function deleteEvent(id) {
       const { error } = await supabase
@@ -142,3 +156,4 @@
   <div id="eventsList"></div>
 </body>
 </html>
+
