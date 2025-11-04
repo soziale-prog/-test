@@ -8,8 +8,9 @@
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-    const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co'
-    const SUPABASE_KEY = 'твой_anon_ключ'
+  const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co'
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluendsYWNnaGh6bHpkdXZ2bHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzg2NjEsImV4cCI6MjA3Nzc1NDY2MX0.r7H8cHfQfM9_FZiibCa-J6Gt6yGd4p-FCdS2FsFO3C8'
+
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
     let currentUser = null
@@ -156,6 +157,7 @@ async function addEvent(title, date) {
   <div id="eventsList"></div>
 </body>
 </html>
+
 
 
 
