@@ -1,0 +1,177 @@
+/* style.css — крупный мобильный стиль для VK Mini App */
+:root {
+  --maxw: 560px;
+  --pad: 20px;
+  --radius: 16px;
+  --fz: 19px;
+  --fz-small: 16px;
+  --btn-h: 56px;
+  --icon: 40px;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #f0f2f5;
+  font-family: -apple-system, system-ui, sans-serif;
+  color: #111;
+}
+
+body {
+  padding: calc(var(--pad) + env(safe-area-inset-top)) var(--pad) var(--pad);
+  max-width: var(--maxw);
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-size: var(--fz);
+  -webkit-text-size-adjust: 100%;
+}
+
+h1 {
+  font-size: clamp(22px, 2.8vh, 26px);
+  font-weight: 700;
+  margin: 6px 0 16px;
+  text-align: center;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.controls input[type="text"],
+.controls input[type="date"] {
+  height: var(--btn-h);
+  padding: 0 16px;
+  font-size: var(--fz);
+  border-radius: var(--radius);
+  border: 1px solid #dcdfe3;
+  background: #fff;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.controls button {
+  grid-column: 1 / -1;
+  height: var(--btn-h);
+  font-size: var(--fz);
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius);
+  background: #0077ff;
+  color: #fff;
+}
+
+.controls button:active {
+  transform: translateY(1px);
+}
+
+.eventItem {
+  position: relative;
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+}
+
+.eventItem strong {
+  font-size: clamp(18px, 2.4vh, 20px);
+  display: block;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.eventItem small {
+  font-size: var(--fz-small);
+  color: #666;
+}
+
+.actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.editBtn,
+.delBtn {
+  width: var(--icon);
+  height: var(--icon);
+  border-radius: 50%;
+  border: none;
+  color: #fff;
+  font-size: clamp(18px, 2.2vh, 20px);
+  display: grid;
+  place-items: center;
+}
+
+.editBtn {
+  background: #ffa500;
+}
+
+.editBtn:active {
+  transform: translateY(1px);
+}
+
+.delBtn {
+  background: #ff5c5c;
+}
+
+.delBtn:active {
+  transform: translateY(1px);
+}
+
+.editMode {
+  margin-top: 12px;
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.editMode input {
+  height: var(--btn-h);
+  padding: 0 16px;
+  font-size: var(--fz);
+  border-radius: var(--radius);
+  border: 1px solid #dcdfe3;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.saveBtn,
+.cancelBtn {
+  height: var(--btn-h);
+  font-size: var(--fz);
+  border: none;
+  border-radius: var(--radius);
+  color: #fff;
+}
+
+.saveBtn {
+  background: #0077ff;
+}
+
+.cancelBtn {
+  background: #9aa3ad;
+}
+
+@media (max-width: 420px) {
+  :root {
+    --fz: 18px;
+    --fz-small: 15px;
+    --btn-h: 54px;
+    --icon: 36px;
+  }
+
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .editMode {
+    grid-template-columns: 1fr;
+  }
+}
