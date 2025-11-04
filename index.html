@@ -79,6 +79,35 @@
       background: #ff5c5c;
     }
 
+.actions {
+  display: flex;
+  gap: 4px;
+}
+
+.editBtn, .delBtn {
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+  line-height: 0;
+  cursor: pointer;
+  color: white;
+}
+
+.editBtn {
+  background: #ffa500; /* оранжевая – редактирование */
+}
+.editBtn:hover {
+  background: #e68a00;
+}
+
+.delBtn {
+  background: #ff5c5c; /* красная – удаление */
+}
+.delBtn:hover {
+  background: #d93535;
+}
     .saveBtn:hover { background: #1b5dbf; }
     .cancelBtn:hover { background: #d93535; }
   </style>
