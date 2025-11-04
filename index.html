@@ -1,158 +1,328 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Записная книжка</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Мои напоминания</title>
 
-  <!-- VK Bridge -->
   <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-  <!-- VKUI -->
-  <script src="https://unpkg.com/@vkontakte/vkui@6.0.1/dist/vkui.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/@vkontakte/vkui@6.0.1/dist/vkui.css" />
+<style>
+ body {
+  font-family: -apple-system, system-ui, sans-serif;
+  background: #f0f2f5;
+  margin: 0;
+  padding: 16px 14px 60px;
+  color: #222;
+  box-sizing: border-box;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, system-ui, sans-serif;
-      background: var(--vkui--color_background);
-    }
+h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 10px 0 18px;
+  text-align: center;
+  color: #222;
+}
 
-    .vkuiApp {
-      max-width: 480px;
-      margin: 0 auto;
-    }
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
 
-    .event-actions {
-      display: flex;
-      gap: 8px;
-    }
+input, button {
+  font-size: 17px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
 
-    .edit-buttons {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    }
+input[type="text"], input[type="date"] {
+  flex: 1 1 45%;
+  min-width: 160px;
+  background: #fff;
+}
 
-    input, button {
-      font-size: 17px;
-    }
-  </style>
+button {
+  background: #0077ff;
+  color: white;
+  border: none;
+  flex: 0 0 auto;
+  font-weight: 500;
+}
+
+button:hover {
+  background: #0060d0;
+}
+
+.eventItem {
+  position: relative;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px 16px 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.eventItem strong {
+  font-size: 18px;
+  display: block;
+  word-wrap: break-word;
+  margin-bottom: 4px;
+}
+
+.eventItem small {
+  color: #555;
+  font-size: 15px;
+}
+
+.actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+}
+
+.editBtn, .delBtn {
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.editBtn {
+  background: #ffa500;
+}
+.editBtn:hover { background: #e68a00; }
+
+.delBtn {
+  background: #ff5c5c;
+}
+.delBtn:hover { background: #d93535; }
+
+.editMode {
+  margin-top: 10px;
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.editMode input {
+  flex: 1 1 48%;
+  padding: 10px 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.saveBtn, .cancelBtn {
+  flex: 1 1 48%;
+  background: #0077ff;
+  border: none;
+  color: white;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.cancelBtn {
+  background: #999;
+}
+
+.saveBtn:hover { background: #0060d0; }
+.cancelBtn:hover { background: #777; }
+
+@media (max-width: 420px) {
+  h1 { font-size: 20px; margin-top: 8px; }
+  input, button { font-size: 16px; padding: 10px 12px; }
+  .controls { gap: 6px; }
+  .eventItem { padding: 12px; }
+  .eventItem strong { font-size: 17px; }
+  .actions { top: 6px; right: 6px; }
+  .editBtn, .delBtn { width: 30px; height: 30px; font-size: 16px; }
+  .saveBtn, .cancelBtn { flex: 1 1 100%; }
+  .editMode input { flex: 1 1 100%; }
+}
+
+
+</style>
 </head>
 <body>
-  <div id="root"></div>
+  <h1>Привет, <span id="username">...</span>!</h1>
+
+  <div class="controls">
+    <input id="titleInput" type="text" placeholder="Название события">
+    <input id="dateInput" type="date">
+    <button id="addBtn">Добавить</button>
+  </div>
+
+  <div id="eventsList"></div>
 
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-    const { AppRoot, Group, Button, Input, Div, SimpleCell, Panel, PanelHeader, Title } = vkui;
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
     // === Supabase настройки ===
-    const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluendsYWNnaGh6bHpkdXZ2bHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzg2NjEsImV4cCI6MjA3Nzc1NDY2MX0.r7H8cHfQfM9_FZiibCa-J6Gt6yGd4p-FCdS2FsFO3C8';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-    let currentUser = null;
+    const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co'
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluendsYWNnaGh6bHpkdXZ2bHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzg2NjEsImV4cCI6MjA3Nzc1NDY2MX0.r7H8cHfQfM9_FZiibCa-J6Gt6yGd4p-FCdS2FsFO3C8'
 
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+    let currentUser = null
+
+    // === Инициализация VK ===
     async function initVK() {
-      await vkBridge.send('VKWebAppInit');
-      const user = await vkBridge.send('VKWebAppGetUserInfo');
-      return user;
+      await vkBridge.send('VKWebAppInit')
+      const user = await vkBridge.send('VKWebAppGetUserInfo')
+      return user
     }
 
+    // === Загрузка событий ===
     async function loadEvents() {
       const { data, error } = await supabase
         .from('events')
         .select('*')
         .eq('vk_id', currentUser.vk_id)
-        .order('event_date', { ascending: true });
-      if (error) console.error(error);
-      return data || [];
+        .order('event_date', { ascending: true })
+
+      if (error) console.error(error)
+      renderEvents(data || [])
     }
 
+    // === Добавление события ===
     async function addEvent(title, date) {
-      if (!title || !date) return;
-      await supabase.from('events').insert([{ vk_id: currentUser.vk_id, title, event_date: date }]);
-      render();
+      if (!title || !date) return
+      const { data, error } = await supabase
+        .from('events')
+        .insert([{ vk_id: currentUser.vk_id, title, event_date: date }])
+        .select()
+      if (error) console.error(error)
+      else loadEvents()
     }
 
+    // === Удаление события ===
     async function deleteEvent(id) {
-      await supabase.from('events').delete().eq('id', id);
-      render();
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', id)
+      if (error) console.error(error)
+      loadEvents()
     }
 
-    async function updateEvent(id, title, date) {
-      await supabase.from('events').update({ title, event_date: date }).eq('id', id);
-      render();
+  function renderEvents(events) {
+    const list = document.getElementById('eventsList')
+    list.innerHTML = ''
+    if (events.length === 0) {
+      list.innerHTML = '<p>Пока нет событий</p>'
+      return
     }
 
-    async function render() {
-      const events = await loadEvents();
+    let activeEditId = null
 
-      const app = document.getElementById('root');
-      app.innerHTML = '';
+    for (const ev of events) {
+      const div = document.createElement('div')
+      div.className = 'eventItem'
+      div.innerHTML = `
+      <div class="viewMode">
+        <strong>${ev.title}</strong><br>
+        <small>${new Date(ev.event_date).toLocaleDateString()}</small>
+      </div>
 
-      const wrapper = document.createElement('div');
-      wrapper.className = 'vkuiApp';
-      wrapper.innerHTML = `
-        <div class="vkuiGroup">
-          <div class="vkuiPanelHeader">
-            <div style="font-size: 20px; font-weight: 600;">Привет, ${currentUser.name}!</div>
-          </div>
-          <div style="padding: 16px;">
-            <input id="title" placeholder="Название события" style="width:100%;margin-bottom:8px;">
-            <input id="date" type="date" style="width:100%;margin-bottom:8px;">
-            <button id="add" style="width:100%;padding:10px;font-size:17px;">Добавить</button>
-          </div>
-          <div id="events" style="padding: 10px;"></div>
-        </div>
-      `;
-      app.appendChild(wrapper);
+      <div class="editMode" style="display:none;">
+        <input type="text" value="${ev.title}" class="editTitle" style="width:140px;">
+        <input type="date" value="${ev.event_date}" class="editDate">
+        <button type="button" class="saveBtn">💾 Сохранить</button>
+        <button type="button" class="cancelBtn">Отмена</button>
+      </div>
 
-      // Список событий
-      const list = wrapper.querySelector('#events');
-      if (events.length === 0) {
-        list.innerHTML = '<div style="text-align:center;color:#666;">Пока нет событий</div>';
-      } else {
-        events.forEach(ev => {
-          const card = document.createElement('div');
-          card.style.background = 'white';
-          card.style.borderRadius = '10px';
-          card.style.padding = '12px';
-          card.style.marginBottom = '8px';
-          card.style.boxShadow = '0 1px 4px rgba(0,0,0,0.1)';
-          card.innerHTML = `
-            <div style="font-size:17px;font-weight:500;">${ev.title}</div>
-            <div style="font-size:14px;color:#666;margin-bottom:8px;">${new Date(ev.event_date).toLocaleDateString()}</div>
-            <div class="event-actions">
-              <button class="edit" style="flex:1;background:#ffa500;border:none;color:white;padding:8px;border-radius:8px;">✏️ Редактировать</button>
-              <button class="del" style="flex:1;background:#ff5c5c;border:none;color:white;padding:8px;border-radius:8px;">Удалить</button>
-            </div>
-          `;
-          list.appendChild(card);
+      <div class="actions">
+        <button type="button" class="editBtn" title="Редактировать">✏️</button>
+        <button type="button" class="delBtn" title="Удалить">×</button>
+      </div>
+    `
 
-          card.querySelector('.del').addEventListener('click', () => deleteEvent(ev.id));
-          card.querySelector('.edit').addEventListener('click', () => {
-            const newTitle = prompt('Новое название:', ev.title);
-            const newDate = prompt('Новая дата (YYYY-MM-DD):', ev.event_date);
-            if (newTitle && newDate) updateEvent(ev.id, newTitle, newDate);
-          });
-        });
-      }
+      const view = div.querySelector('.viewMode')
+      const edit = div.querySelector('.editMode')
+      const editBtn = div.querySelector('.editBtn')
+      const delBtn = div.querySelector('.delBtn')
+      const save = div.querySelector('.saveBtn')
+      const cancel = div.querySelector('.cancelBtn')
 
-      // Добавление события
-      wrapper.querySelector('#add').addEventListener('click', () => {
-        const title = wrapper.querySelector('#title').value.trim();
-        const date = wrapper.querySelector('#date').value;
-        addEvent(title, date);
-      });
+      // === Удаление ===
+      delBtn.addEventListener('click', () => deleteEvent(ev.id))
+
+      // === Включить редактирование ===
+      editBtn.addEventListener('click', () => {
+        const prevEdit = document.querySelector('.editMode[style*="block"]')
+        if (prevEdit && prevEdit !== edit) {
+          prevEdit.style.display = 'none'
+          prevEdit.parentElement.querySelector('.viewMode').style.display = 'block'
+        }
+        activeEditId = ev.id
+        view.style.display = 'none'
+        edit.style.display = 'block'
+      })
+
+      // === Отмена ===
+      cancel.addEventListener('click', () => {
+        edit.style.display = 'none'
+        view.style.display = 'block'
+        activeEditId = null
+      })
+
+      // === Сохранение ===
+      save.addEventListener('click', async () => {
+        const newTitle = edit.querySelector('.editTitle').value.trim()
+        const newDate = edit.querySelector('.editDate').value
+        if (!newTitle || !newDate) return
+
+        const { error } = await supabase
+          .from('events')
+          .update({ title: newTitle, event_date: newDate })
+          .eq('id', ev.id)
+
+        if (error) {
+          console.error('Ошибка обновления:', error)
+          alert('Ошибка при сохранении!')
+        } else {
+          activeEditId = null
+          loadEvents()
+        }
+      })
+
+      list.appendChild(div)
     }
+  }
 
+
+    // === Главная функция ===
     async function main() {
-      const vkUser = await initVK();
-      currentUser = { vk_id: vkUser.id.toString(), name: vkUser.first_name };
-      render();
+      const vkUser = await initVK()
+      currentUser = { vk_id: vkUser.id.toString(), name: vkUser.first_name }
+      document.getElementById('username').innerText = currentUser.name
+      loadEvents()
+
+      document.getElementById('addBtn').addEventListener('click', () => {
+        const title = document.getElementById('titleInput').value.trim()
+        const date = document.getElementById('dateInput').value
+        if (title && date) addEvent(title, date)
+      })
     }
 
-    main();
+    main()
   </script>
 </body>
 </html>
