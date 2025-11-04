@@ -2,122 +2,143 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>VK Mini App + Supabase</title>
+  <title>Мои напоминания</title>
 
-  <!-- Подключаем vkBridge ДО модуля -->
   <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f0f2f5;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    h1 { margin-bottom: 10px; }
-    #status { margin: 10px 0; font-size: 18px; }
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      background: #2787f5;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover { background: #1b5dbf; }
-  </style>
-</head>
-<body>
-  <h1>VK Mini App + Supabase</h1>
-  <p id="status">Загрузка...</p>
-  <button id="addBtn">+1 очко</button>
-
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-    // === Настройки Supabase ===
     const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co'
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluendsYWNnaGh6bHpkdXZ2bHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzg2NjEsImV4cCI6MjA3Nzc1NDY2MX0.r7H8cHfQfM9_FZiibCa-J6Gt6yGd4p-FCdS2FsFO3C8'
+    const SUPABASE_KEY = 'твой_anon_ключ'
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
     let currentUser = null
 
-    // === Получаем данные VK пользователя ===
     async function initVK() {
       await vkBridge.send('VKWebAppInit')
       const user = await vkBridge.send('VKWebAppGetUserInfo')
       return user
     }
 
-    // === Проверяем пользователя в базе ===
-    async function loadUser(vkUser) {
-      const vk_id = BigInt(vkUser.id).toString()
-      const name = vkUser.first_name
-
-      const { data: existing, error: selectError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('vk_id', vk_id)
-        .limit(1)
-
-      if (selectError) console.error('Ошибка выборки:', selectError)
-      if (existing && existing.length > 0) return existing[0]
-
-      const { data: inserted, error: insertError } = await supabase
-        .from('users')
-        .insert([{ vk_id, name, score: 0 }])
-        .select()
-
-      if (insertError) console.error('Ошибка вставки:', insertError)
-      return inserted ? inserted[0] : null
-    }
-
-    // === Обновляем очки ===
-    async function updateScore(vk_id, score) {
+    async function loadEvents() {
       const { data, error } = await supabase
-        .from('users')
-        .update({ score })
-        .eq('vk_id', vk_id)
-        .select()
+        .from('events')
+        .select('*')
+        .eq('vk_id', currentUser.vk_id)
+        .order('event_date', { ascending: true })
 
-      if (error) console.error('Ошибка обновления:', error)
-      return data ? data[0] : null
+      if (error) console.error(error)
+      renderEvents(data || [])
     }
 
-    // === Основной запуск ===
-    async function main() {
-      try {
-        const vkUser = await initVK()
-        currentUser = await loadUser(vkUser)
+    async function addEvent(title, date) {
+      if (!title || !date) return
+      const { error } = await supabase
+        .from('events')
+        .insert([{ vk_id: currentUser.vk_id, title, event_date: date }])
+      if (error) console.error(error)
+      loadEvents()
+    }
 
-        if (!currentUser) {
-          document.getElementById('status').innerText = 'Ошибка загрузки пользователя'
-          return
-        }
+    async function deleteEvent(id) {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', id)
+      if (error) console.error(error)
+      loadEvents()
+    }
 
-        document.getElementById('status').innerText =
-          `Привет, ${currentUser.name}! У тебя ${currentUser.score} очков.`
-
-        document.getElementById('addBtn').addEventListener('click', async () => {
-          const updated = await updateScore(currentUser.vk_id, currentUser.score + 1)
-          if (updated) {
-            currentUser = updated
-            document.getElementById('status').innerText =
-              `Привет, ${currentUser.name}! У тебя ${currentUser.score} очков.`
-          }
-        })
-      } catch (e) {
-        console.error('Ошибка инициализации VK или Supabase:', e)
-        document.getElementById('status').innerText = 'Ошибка соединения.'
+    function renderEvents(events) {
+      const list = document.getElementById('eventsList')
+      list.innerHTML = ''
+      if (events.length === 0) {
+        list.innerHTML = '<p>Пока нет событий</p>'
+        return
       }
+
+      for (const ev of events) {
+        const div = document.createElement('div')
+        div.className = 'eventItem'
+        div.innerHTML = `
+          <div>
+            <strong>${ev.title}</strong><br>
+            <small>${new Date(ev.event_date).toLocaleDateString()}</small>
+          </div>
+          <button data-id="${ev.id}">×</button>
+        `
+        div.querySelector('button').addEventListener('click', () => deleteEvent(ev.id))
+        list.appendChild(div)
+      }
+    }
+
+    async function main() {
+      const vkUser = await initVK()
+      currentUser = { vk_id: vkUser.id.toString(), name: vkUser.first_name }
+      document.getElementById('username').innerText = currentUser.name
+      loadEvents()
+
+      document.getElementById('addBtn').addEventListener('click', () => {
+        const title = document.getElementById('titleInput').value.trim()
+        const date = document.getElementById('dateInput').value
+        if (title && date) addEvent(title, date)
+      })
     }
 
     main()
   </script>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f4f5f8;
+      padding: 20px;
+      color: #222;
+    }
+    h1 { margin-bottom: 5px; }
+    .controls { margin-bottom: 15px; }
+    input, button {
+      font-size: 14px;
+      padding: 6px 10px;
+      margin-right: 5px;
+    }
+    button {
+      background: #2787f5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover { background: #1b5dbf; }
+    .eventItem {
+      background: white;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .eventItem button {
+      background: #ff5c5c;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+      line-height: 0;
+    }
+    .eventItem button:hover { background: #d93535; }
+  </style>
+</head>
+<body>
+  <h1>Привет, <span id="username">...</span>!</h1>
+  <div class="controls">
+    <input id="titleInput" type="text" placeholder="Название события">
+    <input id="dateInput" type="date">
+    <button id="addBtn">Добавить</button>
+  </div>
+
+  <div id="eventsList"></div>
 </body>
 </html>
