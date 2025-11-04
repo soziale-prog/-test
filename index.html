@@ -144,21 +144,20 @@
       loadEvents()
     }
 
-function renderEvents(events) {
-  const list = document.getElementById('eventsList')
-  list.innerHTML = ''
-  if (events.length === 0) {
-    list.innerHTML = '<p>Пока нет событий</p>'
-    return
-  }
+  function renderEvents(events) {
+    const list = document.getElementById('eventsList')
+    list.innerHTML = ''
+    if (events.length === 0) {
+      list.innerHTML = '<p>Пока нет событий</p>'
+      return
+    }
 
-  // Переменная, чтобы отслеживать, какое событие сейчас редактируется
-  let activeEditId = null
+    let activeEditId = null
 
-  for (const ev of events) {
-    const div = document.createElement('div')
-    div.className = 'eventItem'
-    div.innerHTML = `
+    for (const ev of events) {
+      const div = document.createElement('div')
+      div.className = 'eventItem'
+      div.innerHTML = `
       <div class="viewMode">
         <strong>${ev.title}</strong><br>
         <small>${new Date(ev.event_date).toLocaleDateString()}</small>
@@ -166,65 +165,60 @@ function renderEvents(events) {
       <div class="editMode" style="display:none;">
         <input type="text" value="${ev.title}" class="editTitle" style="width:140px;">
         <input type="date" value="${ev.event_date}" class="editDate">
-        <button class="saveBtn">💾</button>
-        <button class="cancelBtn">✖</button>
+        <button class="saveBtn">💾 Сохранить</button>
+        <button class="cancelBtn">Отмена</button>
       </div>
       <button class="delBtn" data-id="${ev.id}">×</button>
     `
 
-    const view = div.querySelector('.viewMode')
-    const edit = div.querySelector('.editMode')
-    const del = div.querySelector('.delBtn')
-    const save = div.querySelector('.saveBtn')
-    const cancel = div.querySelector('.cancelBtn')
+      const view = div.querySelector('.viewMode')
+      const edit = div.querySelector('.editMode')
+      const del = div.querySelector('.delBtn')
+      const save = div.querySelector('.saveBtn')
+      const cancel = div.querySelector('.cancelBtn')
 
-    // === Удалить ===
-    del.addEventListener('click', () => deleteEvent(ev.id))
+      del.addEventListener('click', () => deleteEvent(ev.id))
 
-    // === Включить редактирование ===
-    view.addEventListener('click', () => {
-      // Закрываем предыдущее редактирование, если было
-      const prevEdit = document.querySelector('.editMode[style*="block"]')
-      if (prevEdit && prevEdit !== edit) {
-        prevEdit.style.display = 'none'
-        prevEdit.parentElement.querySelector('.viewMode').style.display = 'block'
-      }
+      view.addEventListener('click', () => {
+        const prevEdit = document.querySelector('.editMode[style*="block"]')
+        if (prevEdit && prevEdit !== edit) {
+          prevEdit.style.display = 'none'
+          prevEdit.parentElement.querySelector('.viewMode').style.display = 'block'
+        }
 
-      activeEditId = ev.id
-      view.style.display = 'none'
-      edit.style.display = 'block'
-    })
+        activeEditId = ev.id
+        view.style.display = 'none'
+        edit.style.display = 'block'
+      })
 
-    // === Отмена ===
-    cancel.addEventListener('click', () => {
-      edit.style.display = 'none'
-      view.style.display = 'block'
-      activeEditId = null
-    })
-
-    // === Сохранение изменений ===
-    save.addEventListener('click', async () => {
-      const newTitle = edit.querySelector('.editTitle').value.trim()
-      const newDate = edit.querySelector('.editDate').value
-      if (!newTitle || !newDate) return
-
-      const { error } = await supabase
-        .from('events')
-        .update({ title: newTitle, event_date: newDate })
-        .eq('id', ev.id)
-
-      if (error) {
-        console.error('Ошибка обновления:', error)
-        alert('Ошибка при сохранении!')
-      } else {
+      cancel.addEventListener('click', () => {
+        edit.style.display = 'none'
+        view.style.display = 'block'
         activeEditId = null
-        loadEvents()
-      }
-    })
+      })
 
-    list.appendChild(div)
+      save.addEventListener('click', async () => {
+        const newTitle = edit.querySelector('.editTitle').value.trim()
+        const newDate = edit.querySelector('.editDate').value
+        if (!newTitle || !newDate) return
+
+        const { error } = await supabase
+          .from('events')
+          .update({ title: newTitle, event_date: newDate })
+          .eq('id', ev.id)
+
+        if (error) {
+          console.error('Ошибка обновления:', error)
+          alert('Ошибка при сохранении!')
+        } else {
+          activeEditId = null
+          loadEvents()
+        }
+      })
+
+      list.appendChild(div)
+    }
   }
-}
 
 
     // === Главная функция ===
@@ -245,4 +239,3 @@ function renderEvents(events) {
   </script>
 </body>
 </html>
-
