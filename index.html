@@ -1,60 +1,123 @@
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>VK Mini App + Supabase</title>
 
-  const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co'
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluendsYWNnaGh6bHpkdXZ2bHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzg2NjEsImV4cCI6MjA3Nzc1NDY2MX0.r7H8cHfQfM9_FZiibCa-J6Gt6yGd4p-FCdS2FsFO3C8'
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+  <!-- Подключаем vkBridge ДО модуля -->
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 
-  async function initVK() {
-    await vkBridge.send('VKWebAppInit')
-    const user = await vkBridge.send('VKWebAppGetUserInfo')
-    return user
-  }
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 { margin-bottom: 10px; }
+    #status { margin: 10px 0; font-size: 18px; }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #2787f5;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: #1b5dbf; }
+  </style>
+</head>
+<body>
+  <h1>VK Mini App + Supabase</h1>
+  <p id="status">Загрузка...</p>
+  <button id="addBtn">+1 очко</button>
 
-  async function loadUser(vkUser) {
-    const vk_id = BigInt(vkUser.id).toString()
-    const name = vkUser.first_name
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-    const { data: existing } = await supabase
-      .from('users')
-      .select('*')
-      .eq('vk_id', vk_id)
-      .limit(1)
+    // === Настройки Supabase ===
+    const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co'
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluendsYWNnaGh6bHpkdXZ2bHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzg2NjEsImV4cCI6MjA3Nzc1NDY2MX0.r7H8cHfQfM9_FZiibCa-J6Gt6yGd4p-FCdS2FsFO3C8'
 
-    if (existing.length > 0) return existing[0]
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+    let currentUser = null
 
-    const { data: inserted } = await supabase
-      .from('users')
-      .insert([{ vk_id, name, score: 0 }])
-      .select()
+    // === Получаем данные VK пользователя ===
+    async function initVK() {
+      await vkBridge.send('VKWebAppInit')
+      const user = await vkBridge.send('VKWebAppGetUserInfo')
+      return user
+    }
 
-    return inserted[0]
-  }
+    // === Проверяем пользователя в базе ===
+    async function loadUser(vkUser) {
+      const vk_id = BigInt(vkUser.id).toString()
+      const name = vkUser.first_name
 
-  async function updateScore(vk_id, score) {
-    const { data } = await supabase
-      .from('users')
-      .update({ score })
-      .eq('vk_id', vk_id)
-      .select()
-    return data[0]
-  }
+      const { data: existing, error: selectError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('vk_id', vk_id)
+        .limit(1)
 
-  let currentUser = null
+      if (selectError) console.error('Ошибка выборки:', selectError)
+      if (existing && existing.length > 0) return existing[0]
 
-  async function main() {
-    const vkUser = await initVK()
-    currentUser = await loadUser(vkUser)
-    document.getElementById('status').innerText =
-      `Привет, ${currentUser.name}! У тебя ${currentUser.score} очков.`
-  }
+      const { data: inserted, error: insertError } = await supabase
+        .from('users')
+        .insert([{ vk_id, name, score: 0 }])
+        .select()
 
-  async function addPoint() {
-    if (!currentUser) return
-    currentUser = await updateScore(currentUser.vk_id, currentUser.score + 1)
-    document.getElementById('status').innerText =
-      `Привет, ${currentUser.name}! У тебя ${currentUser.score} очков.`
-  }
+      if (insertError) console.error('Ошибка вставки:', insertError)
+      return inserted ? inserted[0] : null
+    }
 
-  main()
-</script>
+    // === Обновляем очки ===
+    async function updateScore(vk_id, score) {
+      const { data, error } = await supabase
+        .from('users')
+        .update({ score })
+        .eq('vk_id', vk_id)
+        .select()
+
+      if (error) console.error('Ошибка обновления:', error)
+      return data ? data[0] : null
+    }
+
+    // === Основной запуск ===
+    async function main() {
+      try {
+        const vkUser = await initVK()
+        currentUser = await loadUser(vkUser)
+
+        if (!currentUser) {
+          document.getElementById('status').innerText = 'Ошибка загрузки пользователя'
+          return
+        }
+
+        document.getElementById('status').innerText =
+          `Привет, ${currentUser.name}! У тебя ${currentUser.score} очков.`
+
+        document.getElementById('addBtn').addEventListener('click', async () => {
+          const updated = await updateScore(currentUser.vk_id, currentUser.score + 1)
+          if (updated) {
+            currentUser = updated
+            document.getElementById('status').innerText =
+              `Привет, ${currentUser.name}! У тебя ${currentUser.score} очков.`
+          }
+        })
+      } catch (e) {
+        console.error('Ошибка инициализации VK или Supabase:', e)
+        document.getElementById('status').innerText = 'Ошибка соединения.'
+      }
+    }
+
+    main()
+  </script>
+</body>
+</html>
