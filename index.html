@@ -1,26 +1,117 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+  <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>Мои напоминания</title>
 
   <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f4f5f8;
+      padding: 20px;
+      color: #222;
+    }
+    h1 {
+      margin-bottom: 10px;
+      font-size: 26px;
+    }
+    .controls {
+      margin-bottom: 15px;
+    }
+    input, button {
+      font-size: 14px;
+      padding: 6px 10px;
+      margin-right: 5px;
+    }
+    button {
+      background: #2787f5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1b5dbf;
+    }
+
+    .eventItem {
+      background: white;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      flex-wrap: wrap;
+    }
+
+    .eventItem button.delBtn {
+      background: #ff5c5c;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+      line-height: 0;
+      margin-left: 8px;
+    }
+    .eventItem button.delBtn:hover {
+      background: #d93535;
+    }
+
+    .editMode input {
+      margin-right: 4px;
+    }
+
+    .saveBtn, .cancelBtn {
+      background: #2787f5;
+      border: none;
+      color: white;
+      padding: 4px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .cancelBtn {
+      background: #ff5c5c;
+    }
+
+    .saveBtn:hover { background: #1b5dbf; }
+    .cancelBtn:hover { background: #d93535; }
+  </style>
+</head>
+<body>
+  <h1>Привет, <span id="username">...</span>!</h1>
+
+  <div class="controls">
+    <input id="titleInput" type="text" placeholder="Название события">
+    <input id="dateInput" type="date">
+    <button id="addBtn">Добавить</button>
+  </div>
+
+  <div id="eventsList"></div>
+
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-  const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co'
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluendsYWNnaGh6bHpkdXZ2bHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzg2NjEsImV4cCI6MjA3Nzc1NDY2MX0.r7H8cHfQfM9_FZiibCa-J6Gt6yGd4p-FCdS2FsFO3C8'
-
+    // === Supabase настройки ===
+    const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co'
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluendsYWNnaGh6bHpkdXZ2bHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzg2NjEsImV4cCI6MjA3Nzc1NDY2MX0.r7H8cHfQfM9_FZiibCa-J6Gt6yGd4p-FCdS2FsFO3C8'
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
     let currentUser = null
 
+    // === Инициализация VK ===
     async function initVK() {
       await vkBridge.send('VKWebAppInit')
       const user = await vkBridge.send('VKWebAppGetUserInfo')
       return user
     }
 
+    // === Загрузка событий ===
     async function loadEvents() {
       const { data, error } = await supabase
         .from('events')
@@ -32,21 +123,18 @@
       renderEvents(data || [])
     }
 
+    // === Добавление события ===
+    async function addEvent(title, date) {
+      if (!title || !date) return
+      const { data, error } = await supabase
+        .from('events')
+        .insert([{ vk_id: currentUser.vk_id, title, event_date: date }])
+        .select()
+      if (error) console.error(error)
+      else loadEvents()
+    }
 
-
-async function addEvent(title, date) {
-  if (!title || !date) return
-  const { data, error } = await supabase
-    .from('events')
-    .insert([{ vk_id: currentUser.vk_id, title, event_date: date }])
-    .select()
-
-  console.log('Ответ Supabase:', data, error)
-  if (error) alert('Ошибка: ' + error.message)
-  else loadEvents()
-}
-
-
+    // === Удаление события ===
     async function deleteEvent(id) {
       const { error } = await supabase
         .from('events')
@@ -56,76 +144,77 @@ async function addEvent(title, date) {
       loadEvents()
     }
 
-function renderEvents(events) {
-  const list = document.getElementById('eventsList')
-  list.innerHTML = ''
-  if (events.length === 0) {
-    list.innerHTML = '<p>Пока нет событий</p>'
-    return
-  }
-
-  for (const ev of events) {
-    const div = document.createElement('div')
-    div.className = 'eventItem'
-    div.innerHTML = `
-      <div class="viewMode">
-        <strong>${ev.title}</strong><br>
-        <small>${new Date(ev.event_date).toLocaleDateString()}</small>
-      </div>
-      <div class="editMode" style="display:none;">
-        <input type="text" value="${ev.title}" class="editTitle" style="width:140px;">
-        <input type="date" value="${ev.event_date}" class="editDate">
-        <button class="saveBtn">💾</button>
-        <button class="cancelBtn">✖</button>
-      </div>
-      <button class="delBtn" data-id="${ev.id}">×</button>
-    `
-
-    const view = div.querySelector('.viewMode')
-    const edit = div.querySelector('.editMode')
-    const del = div.querySelector('.delBtn')
-    const save = div.querySelector('.saveBtn')
-    const cancel = div.querySelector('.cancelBtn')
-
-    // === Удалить ===
-    del.addEventListener('click', () => deleteEvent(ev.id))
-
-    // === Включить редактирование ===
-    view.addEventListener('click', () => {
-      view.style.display = 'none'
-      edit.style.display = 'block'
-    })
-
-    // === Отмена редактирования ===
-    cancel.addEventListener('click', () => {
-      edit.style.display = 'none'
-      view.style.display = 'block'
-    })
-
-    // === Сохранение изменений ===
-    save.addEventListener('click', async () => {
-      const newTitle = edit.querySelector('.editTitle').value.trim()
-      const newDate = edit.querySelector('.editDate').value
-      if (!newTitle || !newDate) return
-
-      const { error } = await supabase
-        .from('events')
-        .update({ title: newTitle, event_date: newDate })
-        .eq('id', ev.id)
-
-      if (error) {
-        console.error('Ошибка обновления:', error)
-        alert('Ошибка при сохранении!')
-      } else {
-        loadEvents()
+    // === Отрисовка событий с возможностью редактирования ===
+    function renderEvents(events) {
+      const list = document.getElementById('eventsList')
+      list.innerHTML = ''
+      if (events.length === 0) {
+        list.innerHTML = '<p>Пока нет событий</p>'
+        return
       }
-    })
 
-    list.appendChild(div)
-  }
-}
+      for (const ev of events) {
+        const div = document.createElement('div')
+        div.className = 'eventItem'
+        div.innerHTML = `
+          <div class="viewMode">
+            <strong>${ev.title}</strong><br>
+            <small>${new Date(ev.event_date).toLocaleDateString()}</small>
+          </div>
+          <div class="editMode" style="display:none;">
+            <input type="text" value="${ev.title}" class="editTitle" style="width:140px;">
+            <input type="date" value="${ev.event_date}" class="editDate">
+            <button class="saveBtn">💾</button>
+            <button class="cancelBtn">✖</button>
+          </div>
+          <button class="delBtn" data-id="${ev.id}">×</button>
+        `
 
+        const view = div.querySelector('.viewMode')
+        const edit = div.querySelector('.editMode')
+        const del = div.querySelector('.delBtn')
+        const save = div.querySelector('.saveBtn')
+        const cancel = div.querySelector('.cancelBtn')
 
+        // === Удалить ===
+        del.addEventListener('click', () => deleteEvent(ev.id))
+
+        // === Включить редактирование ===
+        view.addEventListener('click', () => {
+          view.style.display = 'none'
+          edit.style.display = 'block'
+        })
+
+        // === Отмена ===
+        cancel.addEventListener('click', () => {
+          edit.style.display = 'none'
+          view.style.display = 'block'
+        })
+
+        // === Сохранение изменений ===
+        save.addEventListener('click', async () => {
+          const newTitle = edit.querySelector('.editTitle').value.trim()
+          const newDate = edit.querySelector('.editDate').value
+          if (!newTitle || !newDate) return
+
+          const { error } = await supabase
+            .from('events')
+            .update({ title: newTitle, event_date: newDate })
+            .eq('id', ev.id)
+
+          if (error) {
+            console.error('Ошибка обновления:', error)
+            alert('Ошибка при сохранении!')
+          } else {
+            loadEvents()
+          }
+        })
+
+        list.appendChild(div)
+      }
+    }
+
+    // === Главная функция ===
     async function main() {
       const vkUser = await initVK()
       currentUser = { vk_id: vkUser.id.toString(), name: vkUser.first_name }
@@ -141,56 +230,5 @@ function renderEvents(events) {
 
     main()
   </script>
-
-  <style>
-.eventItem {
-  background: white;
-  border-radius: 8px;
-  padding: 8px 10px;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  flex-wrap: wrap;
-}
-
-.editMode input {
-  margin-right: 4px;
-}
-
-.saveBtn, .cancelBtn {
-  background: #2787f5;
-  border: none;
-  color: white;
-  padding: 4px 6px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.cancelBtn {
-  background: #ff5c5c;
-}
-
-.saveBtn:hover { background: #1b5dbf; }
-.cancelBtn:hover { background: #d93535; }
-  </style>
-</head>
-<body>
-  <h1>Привет, <span id="username">...</span>!</h1>
-  <div class="controls">
-    <input id="titleInput" type="text" placeholder="Название события">
-    <input id="dateInput" type="date">
-    <button id="addBtn">Добавить</button>
-  </div>
-
-  <div id="eventsList"></div>
 </body>
 </html>
-
-
-
-
-
-
-
