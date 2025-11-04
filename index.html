@@ -8,143 +8,151 @@
   <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 <style>
   body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #f4f5f8;
-  padding: 15px;
+  font-family: -apple-system, system-ui, sans-serif;
+  background: #f0f2f5;
+  margin: 0;
+  padding: 12px 10px 40px;
   color: #222;
-  max-width: 600px;
-  margin: 0 auto;
-  }
-  
-  h1 {
-  margin-bottom: 10px;
-  font-size: 22px;
+  box-sizing: border-box;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+h1 {
+  font-size: 20px;
+  margin: 10px 0 14px;
   text-align: center;
-  }
-  
-  .controls {
+  color: #222;
+}
+
+.controls {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   justify-content: center;
-  margin-bottom: 12px;
-  }
-  
-  input, button {
+  margin-bottom: 14px;
+}
+
+input, button {
   font-size: 15px;
   padding: 8px 10px;
-  border: none;
-  border-radius: 6px;
-  }
-  
-  input[type="text"] {
-  flex: 1 1 160px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+input[type="text"], input[type="date"] {
+  flex: 1 1 45%;
   min-width: 140px;
-  }
-  
-  input[type="date"] {
-  flex: 0 0 130px;
-  }
-  
-  button {
-  background: #2787f5;
+  background: #fff;
+}
+
+button {
+  background: #0077ff;
   color: white;
-  cursor: pointer;
-  }
-  
-  button:hover {
-  background: #1b5dbf;
-  }
-  
-  .eventItem {
-  background: white;
-  border-radius: 10px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  border: none;
+  flex: 0 0 auto;
+}
+
+button:hover {
+  background: #0060d0;
+}
+
+.eventItem {
   position: relative;
-  }
-  
-  .eventItem strong {
-  font-size: 16px;
-  }
-  
-  .eventItem small {
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 12px 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.eventItem strong {
+  font-size: 15px;
+  display: block;
+  word-wrap: break-word;
+  margin-bottom: 2px;
+}
+
+.eventItem small {
+  color: #666;
   font-size: 13px;
-  color: #555;
-  }
-  
-  .actions {
+}
+
+.actions {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   display: flex;
   gap: 4px;
-  }
-  
-  .editBtn, .delBtn {
+}
+
+.editBtn, .delBtn {
   border: none;
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   font-size: 15px;
-  line-height: 0;
   cursor: pointer;
   color: white;
-  }
-  
-  .editBtn {
-  background: #ffa500;
-  }
-  .editBtn:hover { background: #e68a00; }
-  
-  .delBtn {
-  background: #ff5c5c;
-  }
-  .delBtn:hover { background: #d93535; }
-  
-  .editMode {
-  width: 100%;
-  margin-top: 8px;
   display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.editBtn {
+  background: #ffa500;
+}
+.editBtn:hover { background: #e68a00; }
+
+.delBtn {
+  background: #ff5c5c;
+}
+.delBtn:hover { background: #d93535; }
+
+.editMode {
+  margin-top: 8px;
+  display: none;
   flex-wrap: wrap;
   gap: 6px;
-  }
-  
-  .editMode input {
-  flex: 1 1 45%;
-  min-width: 120px;
-  padding: 6px 8px;
-  }
-  
-  .saveBtn, .cancelBtn {
-  flex: 1 1 45%;
-  background: #2787f5;
-  color: white;
+}
+
+.editMode input {
+  flex: 1 1 48%;
+  padding: 7px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.saveBtn, .cancelBtn {
+  flex: 1 1 48%;
+  background: #0077ff;
   border: none;
-  padding: 6px;
+  color: white;
+  padding: 8px;
   border-radius: 6px;
   cursor: pointer;
-  }
-  
-  .cancelBtn {
-  background: #aaa;
-  }
-  
-  .saveBtn:hover { background: #1b5dbf; }
-  .cancelBtn:hover { background: #888; }
-  
-  @media (max-width: 420px) {
-  h1 { font-size: 20px; }
-  .eventItem { padding: 8px; }
-  input, button { font-size: 14px; }
-  .editMode input { flex: 1 1 100%; }
+  font-size: 14px;
+}
+
+.cancelBtn {
+  background: #999;
+}
+
+.saveBtn:hover { background: #0060d0; }
+.cancelBtn:hover { background: #777; }
+
+@media (max-width: 420px) {
+  h1 { font-size: 18px; margin-top: 6px; }
+  input, button { font-size: 14px; padding: 7px 8px; }
+  .controls { gap: 4px; }
+  .eventItem { padding: 8px 10px; }
   .saveBtn, .cancelBtn { flex: 1 1 100%; }
-  }
+  .editMode input { flex: 1 1 100%; }
+}
+
 </style>
 </head>
 <body>
