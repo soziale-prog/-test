@@ -186,9 +186,13 @@
       loadEvents()
 
       document.getElementById('addBtn').addEventListener('click', () => {
-        const title = document.getElementById('titleInput').value.trim()
-        const date = document.getElementById('dateInput').value
-        if (title && date) addEvent(title, date)
+        const title = document.getElementById('eventTitle').value.trim()
+        const date = document.getElementById('eventDate').value
+        if (title && date) {
+          addEvent(title, date)
+          document.getElementById('eventTitle').value = ''
+          document.getElementById('eventDate').value = ''
+        }
       })
     }
     import bridge from 'https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge/+esm';
