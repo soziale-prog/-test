@@ -202,18 +202,14 @@
       nameEl.textContent = `Привет, ${data.first_name}!`;
 
       // Фото пользователя
-    if (data.photo_100) {
-        const img = document.createElement("img");
-        img.src = data.photo_100;
-        img.alt = "avatar";
-        img.onload = () => {
-          avatarDiv.textContent = "";
-          avatarDiv.appendChild(img);
-        };
+      if (data.photo_100) {
+        avatarDiv.innerHTML = `<img src="${data.photo_100}" alt="avatar">`;
       } else {
+        // Если фото нет — инициалы
         const initials = (data.first_name?.[0] ?? '?') + (data.last_name?.[0] ?? '');
         avatarDiv.textContent = initials.toUpperCase();
       }
+
 
 
     } catch (e) {
