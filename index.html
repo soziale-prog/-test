@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -12,31 +13,32 @@
   <link rel="stylesheet" media="(max-width: 700px)" href="style-mobile.css">
 
 </head>
+
 <body>
   <h1>Привет, <span id="username">...</span>!</h1>
 
-<header class="user-header">
-  <div class="user-info">
-    <div id="userAvatar" class="user-avatar">ДМ</div>
-   
+  <header class="user-header">
+    <div class="user-info">
+      <img id="userAvatar" class="user-avatar" src="" alt="avatar">
+      <h1 id="userName">Привет, Дмитрий!</h1>
+    </div>
+  </header>
+
+
+
+  <div class="controls">
+    <div class="form-field">
+      <label for="eventTitle">Название события</label>
+      <input id="eventTitle" type="text" placeholder="Введите название">
+    </div>
+
+    <div class="form-field">
+      <label for="eventDate">Дата</label>
+      <input id="eventDate" type="date">
+    </div>
+
+    <button id="addBtn">Добавить</button>
   </div>
-</header>
-
-
-
-<div class="controls">
-  <div class="form-field">
-    <label for="eventTitle">Название события</label>
-    <input id="eventTitle" type="text" placeholder="Введите название">
-  </div>
-
-  <div class="form-field">
-    <label for="eventDate">Дата</label>
-    <input id="eventDate" type="date">
-  </div>
-
-  <button id="addBtn">Добавить</button>
-</div>
 
   <div id="eventsList"></div>
 
@@ -90,20 +92,20 @@
       loadEvents()
     }
 
-  function renderEvents(events) {
-    const list = document.getElementById('eventsList')
-    list.innerHTML = ''
-    if (events.length === 0) {
-      list.innerHTML = '<p>Пока нет событий</p>'
-      return
-    }
+    function renderEvents(events) {
+      const list = document.getElementById('eventsList')
+      list.innerHTML = ''
+      if (events.length === 0) {
+        list.innerHTML = '<p>Пока нет событий</p>'
+        return
+      }
 
-    let activeEditId = null
+      let activeEditId = null
 
-    for (const ev of events) {
-      const div = document.createElement('div')
-      div.className = 'eventItem'
-      div.innerHTML = `
+      for (const ev of events) {
+        const div = document.createElement('div')
+        div.className = 'eventItem'
+        div.innerHTML = `
       <div class="viewMode">
         <strong>${ev.title}</strong><br>
         <small>${new Date(ev.event_date).toLocaleDateString()}</small>
@@ -122,58 +124,58 @@
       </div>
     `
 
-      const view = div.querySelector('.viewMode')
-      const edit = div.querySelector('.editMode')
-      const editBtn = div.querySelector('.editBtn')
-      const delBtn = div.querySelector('.delBtn')
-      const save = div.querySelector('.saveBtn')
-      const cancel = div.querySelector('.cancelBtn')
+        const view = div.querySelector('.viewMode')
+        const edit = div.querySelector('.editMode')
+        const editBtn = div.querySelector('.editBtn')
+        const delBtn = div.querySelector('.delBtn')
+        const save = div.querySelector('.saveBtn')
+        const cancel = div.querySelector('.cancelBtn')
 
-      // === Удаление ===
-      delBtn.addEventListener('click', () => deleteEvent(ev.id))
+        // === Удаление ===
+        delBtn.addEventListener('click', () => deleteEvent(ev.id))
 
-      // === Включить редактирование ===
-      editBtn.addEventListener('click', () => {
-        const prevEdit = document.querySelector('.editMode[style*="block"]')
-        if (prevEdit && prevEdit !== edit) {
-          prevEdit.style.display = 'none'
-          prevEdit.parentElement.querySelector('.viewMode').style.display = 'block'
-        }
-        activeEditId = ev.id
-        view.style.display = 'none'
-        edit.style.display = 'block'
-      })
+        // === Включить редактирование ===
+        editBtn.addEventListener('click', () => {
+          const prevEdit = document.querySelector('.editMode[style*="block"]')
+          if (prevEdit && prevEdit !== edit) {
+            prevEdit.style.display = 'none'
+            prevEdit.parentElement.querySelector('.viewMode').style.display = 'block'
+          }
+          activeEditId = ev.id
+          view.style.display = 'none'
+          edit.style.display = 'block'
+        })
 
-      // === Отмена ===
-      cancel.addEventListener('click', () => {
-        edit.style.display = 'none'
-        view.style.display = 'block'
-        activeEditId = null
-      })
-
-      // === Сохранение ===
-      save.addEventListener('click', async () => {
-        const newTitle = edit.querySelector('.editTitle').value.trim()
-        const newDate = edit.querySelector('.editDate').value
-        if (!newTitle || !newDate) return
-
-        const { error } = await supabase
-          .from('events')
-          .update({ title: newTitle, event_date: newDate })
-          .eq('id', ev.id)
-
-        if (error) {
-          console.error('Ошибка обновления:', error)
-          alert('Ошибка при сохранении!')
-        } else {
+        // === Отмена ===
+        cancel.addEventListener('click', () => {
+          edit.style.display = 'none'
+          view.style.display = 'block'
           activeEditId = null
-          loadEvents()
-        }
-      })
+        })
 
-      list.appendChild(div)
+        // === Сохранение ===
+        save.addEventListener('click', async () => {
+          const newTitle = edit.querySelector('.editTitle').value.trim()
+          const newDate = edit.querySelector('.editDate').value
+          if (!newTitle || !newDate) return
+
+          const { error } = await supabase
+            .from('events')
+            .update({ title: newTitle, event_date: newDate })
+            .eq('id', ev.id)
+
+          if (error) {
+            console.error('Ошибка обновления:', error)
+            alert('Ошибка при сохранении!')
+          } else {
+            activeEditId = null
+            loadEvents()
+          }
+        })
+
+        list.appendChild(div)
+      }
     }
-  }
 
 
     // === Главная функция ===
@@ -189,37 +191,22 @@
         if (title && date) addEvent(title, date)
       })
     }
-  import bridge from 'https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge/+esm';
+    import bridge from 'https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge/+esm';
 
-  async function loadUser() {
-    const avatarDiv = document.getElementById('userAvatar');
-    const nameEl = document.getElementById('userName');
-
-    try {
-      const data = await bridge.send('VKWebAppGetUserInfo');
-
-      // Приветствие
-      nameEl.textContent = `Привет, ${data.first_name}!`;
-
-      // Фото пользователя
-      if (data.photo_100) {
-        avatarDiv.innerHTML = `<img src="${data.photo_100}" alt="avatar">`;
-      } else {
-        // Если фото нет — инициалы
-        const initials = (data.first_name?.[0] ?? '?') + (data.last_name?.[0] ?? '');
-        avatarDiv.textContent = initials.toUpperCase();
+    async function loadUser() {
+      try {
+        const data = await bridge.send('VKWebAppGetUserInfo');
+        document.getElementById('userName').textContent = `Привет, ${data.first_name}!`;
+        document.getElementById('userAvatar').src = data.photo_100;
+      } catch (e) {
+        console.warn('Не удалось получить данные пользователя', e);
+        document.getElementById('userAvatar').src = 'https://via.placeholder.com/64/cccccc/ffffff?text=?';
       }
-
-
-
-    } catch (e) {
-      console.warn('Ошибка VK Bridge:', e);
-      avatarDiv.textContent = '??';
     }
-  }
 
-  loadUser();
-  main();
+    loadUser();
+    main()
   </script>
 </body>
+
 </html>

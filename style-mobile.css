@@ -1,122 +1,68 @@
-/* === style-mobile.css — мобильная версия под VK WebView === */
+/* style-mobile.css — мобильная версия интерфейса под VK WebView */
+/* Работает стабильно внутри ВКонтакте, без zoom и багов */
 
 @media (max-width: 700px) {
 
   html,
   body {
-    font-size: 20px;
+    font-size: 22px;
+    /* базовый масштаб шрифта (≈1em = 22px) */
     background: #f5f6f8;
     color: #111;
-    padding: 20px 14px calc(70px + env(safe-area-inset-bottom));
+    padding: 24px 16px calc(70px + env(safe-area-inset-bottom));
     box-sizing: border-box;
   }
 
-  /* ==== Шапка пользователя ==== */
-  .user-header {
+  h1 {
+    font-size: 1.3em;
+    /* ≈28px */
+    text-align: center;
+    font-weight: 700;
+    margin: 10px 0 20px;
+  }
+
+  /* Контейнер с полями */
+  .controls {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
     margin-bottom: 20px;
   }
 
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-.user-avatar {
-  position: relative;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #e4e6eb, #d0d3d8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  color: #333;
-  font-size: 20px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.user-avatar img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-  display: block;
-}
-
-  .user-info h1 {
-    font-size: 1.15em;
-    margin: 0;
-    font-weight: 700;
-  }
-
-  /* ==== Форма ==== */
-  .form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 16px;
-  }
-
-  .form-field label {
-    font-size: 17px;
-    color: #333;
-    font-weight: 500;
-    margin-left: 4px;
-  }
-
-  .form-field input[type="text"],
-  .form-field input[type="date"] {
-    width: 100%;
-    height: 58px;
-    font-size: 18px;
-    padding: 0 14px;
-    border: 1px solid #ccc;
-    border-radius: 12px;
+  .controls input[type="text"],
+  .controls input[type="date"] {
+    height: 3em;
+    /* ≈66px */
+    font-size: 1em;
+    padding: 0 0.9em;
+    border-radius: 0.8em;
+    border: 1px solid #ddd;
     background: #fff;
     box-sizing: border-box;
   }
 
-  .form-field input::placeholder {
-    color: #aaa;
-  }
-
-  .form-field input:focus {
-    outline: none;
-    border-color: #0077ff;
-    box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
-  }
-
-  /* ==== Кнопка Добавить ==== */
   .controls button {
-    width: 100%;
-    height: 60px;
-    font-size: 20px;
-    font-weight: 700;
+    height: 3em;
+    font-size: 1em;
+    border-radius: 0.9em;
     border: none;
-    border-radius: 16px;
     background: #0077ff;
     color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.3px;
     cursor: pointer;
   }
 
   .controls button:active {
-    background: #0062d1;
+    background: #0060d4;
   }
 
-  /* ==== Список событий ==== */
+  /* Список событий */
   .eventItem {
     background: #fff;
-    border-radius: 16px;
-    padding: 16px 20px;
-    margin-bottom: 14px;
+    border-radius: 1em;
+    padding: 1.2em;
+    margin-bottom: 1em;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     position: relative;
   }
@@ -124,33 +70,35 @@
   .eventItem strong {
     display: block;
     font-size: 1.05em;
+    /* ≈23px */
     font-weight: 600;
-    margin-bottom: 4px;
+    margin-bottom: 0.3em;
     word-break: break-word;
   }
 
   .eventItem small {
     font-size: 0.9em;
+    /* ≈20px */
     color: #555;
   }
 
-  /* ==== Кнопки редактирования ==== */
   .actions {
     position: absolute;
-    top: 0.7em;
-    right: 0.7em;
+    top: 0.6em;
+    right: 0.6em;
     display: flex;
-    gap: 8px;
+    gap: 0.4em;
   }
 
   .editBtn,
   .delBtn {
-    width: 44px;
-    height: 44px;
+    width: 2.2em;
+    /* ≈48px */
+    height: 2.2em;
+    font-size: 1em;
     border-radius: 50%;
     border: none;
     color: #fff;
-    font-size: 1em;
     display: grid;
     place-items: center;
   }
@@ -171,28 +119,28 @@
     background: #d93535;
   }
 
-  /* ==== Режим редактирования ==== */
+  /* Режим редактирования */
   .editMode {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
-    margin-top: 12px;
+    gap: 12px;
+    margin-top: 1em;
   }
 
   .editMode input {
-    height: 56px;
-    font-size: 18px;
-    border-radius: 10px;
+    height: 2.8em;
+    font-size: 1em;
+    border-radius: 0.8em;
     border: 1px solid #ccc;
-    padding: 0 12px;
+    padding: 0 0.8em;
     box-sizing: border-box;
   }
 
   .saveBtn,
   .cancelBtn {
-    height: 56px;
-    font-size: 18px;
-    border-radius: 12px;
+    height: 2.8em;
+    font-size: 1em;
+    border-radius: 0.8em;
     border: none;
     color: #fff;
     font-weight: 600;
@@ -206,8 +154,98 @@
     background: #9aa3ad;
   }
 
-  /* ==== Отступ от верхней панели ВК ==== */
+  /* Отступ от верхней панели ВК */
   body {
     padding-top: calc(40px + env(safe-area-inset-top));
   }
+
+  .form-field input {
+    height: 64px;
+    font-size: 20px;
+  }
+
+  .form-field label {
+    font-size: 18px;
+  }
+
+  .user-avatar {
+    width: 64px;
+    height: 64px;
+  }
+
+  .user-info h1 {
+    font-size: 1.2em;
+  }
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 20px 12px 8px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  outline: none;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.input-group label {
+  position: absolute;
+  top: 16px;
+  left: 14px;
+  font-size: 1em;
+  color: #999;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.input-group input:focus+label,
+.input-group input:not(:placeholder-shown)+label {
+  top: 6px;
+  font-size: 0.75em;
+  color: #0077ff;
+  background: #fff;
+  padding: 0 4px;
+}
+
+/* Упорядоченные поля формы */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #333;
+  margin-left: 4px;
+}
+
+.form-field input[type="text"],
+.form-field input[type="date"] {
+  width: 100%;
+  /* ← растягиваем по ширине */
+  height: 58px;
+  padding: 0 16px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  font-size: 18px;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.form-field input::placeholder {
+  color: #aaa;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: #0077ff;
+  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
 }
