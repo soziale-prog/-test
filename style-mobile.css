@@ -193,3 +193,52 @@
   background: #fff;
   padding: 0 4px;
 }
+
+/* Упорядоченные поля формы */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #333;
+  margin-left: 4px;
+}
+
+.form-field input[type="text"],
+.form-field input[type="date"] {
+  width: 100%;
+  /* ← растягиваем по ширине */
+  height: 58px;
+  padding: 0 16px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  font-size: 18px;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.form-field input::placeholder {
+  color: #aaa;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: #0077ff;
+  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.15);
+}
+
+/* В мобильной версии чуть крупнее */
+@media (max-width: 700px) {
+  .form-field input {
+    height: 64px;
+    font-size: 20px;
+  }
+
+  .form-field label {
+    font-size: 18px;
+  }
+}
