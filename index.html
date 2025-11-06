@@ -15,9 +15,9 @@
 <body>
   <h1>Привет, <span id="username">...</span>!</h1>
 
-  <header class="user-header">
+<header class="user-header">
   <div class="user-info">
-    <img id="userAvatar" class="user-avatar" src="" alt="avatar">
+    <div id="userAvatar" class="user-avatar">ДМ</div>
     <h1 id="userName">Привет, Дмитрий!</h1>
   </div>
 </header>
@@ -192,18 +192,31 @@
   import bridge from 'https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge/+esm';
 
   async function loadUser() {
+    const avatarDiv = document.getElementById('userAvatar');
+    const nameEl = document.getElementById('userName');
+
     try {
       const data = await bridge.send('VKWebAppGetUserInfo');
-      document.getElementById('userName').textContent = `Привет, ${data.first_name}!`;
-      document.getElementById('userAvatar').src = data.photo_100;
+
+      // Приветствие
+      nameEl.textContent = `Привет, ${data.first_name}!`;
+
+      // Фото пользователя
+      if (data.photo_100) {
+        avatarDiv.innerHTML = `<img src="${data.photo_100}" alt="avatar">`;
+      } else {
+        // Если фото нет — инициалы
+        const initials = (data.first_name?.[0] ?? '?') + (data.last_name?.[0] ?? '');
+        avatarDiv.textContent = initials.toUpperCase();
+      }
     } catch (e) {
-      console.warn('Не удалось получить данные пользователя', e);
-      document.getElementById('userAvatar').src = 'https://via.placeholder.com/64/cccccc/ffffff?text=?';
+      console.warn('Ошибка VK Bridge:', e);
+      avatarDiv.textContent = '??';
     }
   }
 
   loadUser();
-  main()
+  main();
   </script>
 </body>
 </html>
