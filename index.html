@@ -189,8 +189,21 @@
         if (title && date) addEvent(title, date)
       })
     }
+  import bridge from 'https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge/+esm';
 
-    main()
+  async function loadUser() {
+    try {
+      const data = await bridge.send('VKWebAppGetUserInfo');
+      document.getElementById('userName').textContent = `Привет, ${data.first_name}!`;
+      document.getElementById('userAvatar').src = data.photo_100;
+    } catch (e) {
+      console.warn('Не удалось получить данные пользователя', e);
+      document.getElementById('userAvatar').src = 'https://via.placeholder.com/64/cccccc/ffffff?text=?';
+    }
+  }
+
+  loadUser();
+  main()
   </script>
 </body>
 </html>
