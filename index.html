@@ -3,29 +3,26 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
-
   <title>Мои напоминания</title>
 
-  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+  <!-- Стили -->
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" media="(max-width: 700px)" href="style-mobile.css">
-
 </head>
 
 <body>
-  <h1>Привет, <span id="username">...</span>!</h1>
-
+  <!-- Блок пользователя -->
   <header class="user-header">
     <div class="user-info">
-      <img id="userAvatar" class="user-avatar" src="" alt="avatar">
-      <h1 id="userName">Привет, Дмитрий!</h1>
+      <div class="user-avatar">
+        <img id="userAvatar" src="" alt="avatar">
+      </div>
+      <h1 id="userName">Привет!</h1>
     </div>
   </header>
 
-
-
+  <!-- Поля для ввода -->
   <div class="controls">
     <div class="form-field">
       <label for="eventTitle">Название события</label>
@@ -40,27 +37,37 @@
     <button id="addBtn">Добавить</button>
   </div>
 
+  <!-- Список событий -->
   <div id="eventsList"></div>
 
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    import bridge from 'https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge/+esm'
 
-    // === Supabase настройки ===
+    // === Настройки Supabase ===
     const SUPABASE_URL = 'https://inzwlacghhzlzduvvlyb.supabase.co'
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluendsYWNnaGh6bHpkdXZ2bHliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzg2NjEsImV4cCI6MjA3Nzc1NDY2MX0.r7H8cHfQfM9_FZiibCa-J6Gt6yGd4p-FCdS2FsFO3C8'
-
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
     let currentUser = null
 
-    // === Инициализация VK ===
-    async function initVK() {
-      await vkBridge.send('VKWebAppInit')
-      const user = await vkBridge.send('VKWebAppGetUserInfo')
-      return user
+    // === Загрузка пользователя из VK ===
+    async function loadUser() {
+      try {
+        await bridge.send('VKWebAppInit')
+        const data = await bridge.send('VKWebAppGetUserInfo')
+        currentUser = { vk_id: data.id.toString(), name: data.first_name }
+        document.getElementById('userName').textContent = `Привет, ${data.first_name}!`
+        document.getElementById('userAvatar').src = data.photo_100
+      } catch (e) {
+        console.warn('Не удалось получить данные пользователя', e)
+        document.getElementById('userAvatar').src = 'https://via.placeholder.com/64/cccccc/ffffff?text=?'
+      }
     }
 
     // === Загрузка событий ===
     async function loadEvents() {
+      if (!currentUser) return
       const { data, error } = await supabase
         .from('events')
         .select('*')
@@ -73,11 +80,10 @@
 
     // === Добавление события ===
     async function addEvent(title, date) {
-      if (!title || !date) return
-      const { data, error } = await supabase
+      if (!title || !date || !currentUser) return
+      const { error } = await supabase
         .from('events')
         .insert([{ vk_id: currentUser.vk_id, title, event_date: date }])
-        .select()
       if (error) console.error(error)
       else loadEvents()
     }
@@ -92,6 +98,7 @@
       loadEvents()
     }
 
+    // === Отображение списка ===
     function renderEvents(events) {
       const list = document.getElementById('eventsList')
       list.innerHTML = ''
@@ -106,23 +113,23 @@
         const div = document.createElement('div')
         div.className = 'eventItem'
         div.innerHTML = `
-      <div class="viewMode">
-        <strong>${ev.title}</strong><br>
-        <small>${new Date(ev.event_date).toLocaleDateString()}</small>
-      </div>
+          <div class="viewMode">
+            <strong>${ev.title}</strong><br>
+            <small>${new Date(ev.event_date).toLocaleDateString()}</small>
+          </div>
 
-      <div class="editMode" style="display:none;">
-        <input type="text" value="${ev.title}" class="editTitle" style="width:140px;">
-        <input type="date" value="${ev.event_date}" class="editDate">
-        <button type="button" class="saveBtn">💾 Сохранить</button>
-        <button type="button" class="cancelBtn">Отмена</button>
-      </div>
+          <div class="editMode" style="display:none;">
+            <input type="text" value="${ev.title}" class="editTitle">
+            <input type="date" value="${ev.event_date}" class="editDate">
+            <button class="saveBtn">💾 Сохранить</button>
+            <button class="cancelBtn">Отмена</button>
+          </div>
 
-      <div class="actions">
-        <button type="button" class="editBtn" title="Редактировать">✏️</button>
-        <button type="button" class="delBtn" title="Удалить">×</button>
-      </div>
-    `
+          <div class="actions">
+            <button class="editBtn" title="Редактировать">✏️</button>
+            <button class="delBtn" title="Удалить">×</button>
+          </div>
+        `
 
         const view = div.querySelector('.viewMode')
         const edit = div.querySelector('.editMode')
@@ -131,10 +138,8 @@
         const save = div.querySelector('.saveBtn')
         const cancel = div.querySelector('.cancelBtn')
 
-        // === Удаление ===
         delBtn.addEventListener('click', () => deleteEvent(ev.id))
 
-        // === Включить редактирование ===
         editBtn.addEventListener('click', () => {
           const prevEdit = document.querySelector('.editMode[style*="block"]')
           if (prevEdit && prevEdit !== edit) {
@@ -146,14 +151,12 @@
           edit.style.display = 'block'
         })
 
-        // === Отмена ===
         cancel.addEventListener('click', () => {
           edit.style.display = 'none'
           view.style.display = 'block'
           activeEditId = null
         })
 
-        // === Сохранение ===
         save.addEventListener('click', async () => {
           const newTitle = edit.querySelector('.editTitle').value.trim()
           const newDate = edit.querySelector('.editDate').value
@@ -177,13 +180,10 @@
       }
     }
 
-
     // === Главная функция ===
     async function main() {
-      const vkUser = await initVK()
-      currentUser = { vk_id: vkUser.id.toString(), name: vkUser.first_name }
-      document.getElementById('username').innerText = currentUser.name
-      loadEvents()
+      await loadUser()
+      await loadEvents()
 
       document.getElementById('addBtn').addEventListener('click', () => {
         const title = document.getElementById('eventTitle').value.trim()
@@ -195,20 +195,7 @@
         }
       })
     }
-    import bridge from 'https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge/+esm';
 
-    async function loadUser() {
-      try {
-        const data = await bridge.send('VKWebAppGetUserInfo');
-        document.getElementById('userName').textContent = `Привет, ${data.first_name}!`;
-        document.getElementById('userAvatar').src = data.photo_100;
-      } catch (e) {
-        console.warn('Не удалось получить данные пользователя', e);
-        document.getElementById('userAvatar').src = 'https://via.placeholder.com/64/cccccc/ffffff?text=?';
-      }
-    }
-
-    loadUser();
     main()
   </script>
 </body>
