@@ -15,11 +15,15 @@
 <body>
   <h1>Привет, <span id="username">...</span>!</h1>
 
-  <div class="controls">
-    <input id="titleInput" type="text" placeholder="Название события">
-    <input id="dateInput" type="date">
-    <button id="addBtn">Добавить</button>
-  </div>
+<div class="controls">
+  <label for="eventTitle">Название события</label>
+  <input id="eventTitle" type="text" placeholder="Введите название">
+
+  <label for="eventDate">Дата</label>
+  <input id="eventDate" type="date">
+
+  <button id="addBtn">Добавить</button>
+</div>
 
   <div id="eventsList"></div>
 
