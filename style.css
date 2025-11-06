@@ -1,15 +1,19 @@
 /* style.css — крупный широкоформатный стиль */
 :root {
-  --maxw: 860px;        /* ширина контента */
+  --maxw: 860px;
+  /* ширина контента */
   --pad: 32px;
   --radius: 18px;
-  --fz: 22px;           /* базовый текст */
+  --fz: 22px;
+  /* базовый текст */
   --fz-small: 18px;
-  --btn-h: 64px;        /* высота кнопок/инпутов */
+  --btn-h: 64px;
+  /* высота кнопок/инпутов */
   --icon: 48px;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   background: #f0f2f5;
@@ -73,7 +77,7 @@ h1 {
   border-radius: var(--radius);
   padding: 24px 26px;
   margin-bottom: 22px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
 }
 
 .eventItem strong {
@@ -96,7 +100,8 @@ h1 {
   gap: 12px;
 }
 
-.editBtn, .delBtn {
+.editBtn,
+.delBtn {
   width: var(--icon);
   height: var(--icon);
   border-radius: 50%;
@@ -110,6 +115,7 @@ h1 {
 .editBtn {
   background: #ffa500;
 }
+
 .delBtn {
   background: #ff5c5c;
 }
@@ -131,7 +137,8 @@ h1 {
   box-sizing: border-box;
 }
 
-.saveBtn, .cancelBtn {
+.saveBtn,
+.cancelBtn {
   height: var(--btn-h);
   font-size: var(--fz);
   border: none;
@@ -139,8 +146,13 @@ h1 {
   color: #fff;
 }
 
-.saveBtn { background: #0077ff; }
-.cancelBtn { background: #9aa3ad; }
+.saveBtn {
+  background: #0077ff;
+}
+
+.cancelBtn {
+  background: #9aa3ad;
+}
 
 @media (max-width: 540px) {
   :root {
@@ -160,5 +172,51 @@ h1 {
 
   .eventItem strong {
     font-size: 22px;
+  }
+}
+/* Упорядоченные поля формы */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #333;
+  margin-left: 4px;
+}
+
+.form-field input[type="text"],
+.form-field input[type="date"] {
+  width: 100%;                 /* ← растягиваем по ширине */
+  height: 58px;
+  padding: 0 16px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  font-size: 18px;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.form-field input::placeholder {
+  color: #aaa;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: #0077ff;
+  box-shadow: 0 0 0 3px rgba(0,119,255,0.15);
+}
+
+/* В мобильной версии чуть крупнее */
+@media (max-width: 700px) {
+  .form-field input {
+    height: 64px;
+    font-size: 20px;
+  }
+  .form-field label {
+    font-size: 18px;
   }
 }
