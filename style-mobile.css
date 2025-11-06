@@ -1,0 +1,105 @@
+/* style-mobile.css — мобильная версия интерфейса для VK WebView */
+
+/* Активируется только на ширине до 700px */
+@media (max-width: 700px) {
+
+  html {
+    zoom: 1.6;
+    /* общий масштаб интерфейса — можно регулировать (1.3–2.0) */
+  }
+
+  body {
+    font-size: 22px;
+    padding: 28px 20px 80px;
+    background: #f0f2f5;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    font-size: 30px;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 24px;
+  }
+
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .controls input[type="text"],
+  .controls input[type="date"] {
+    height: 74px;
+    font-size: 22px;
+    border-radius: 18px;
+    padding: 0 20px;
+  }
+
+  .controls button {
+    height: 74px;
+    font-size: 22px;
+    border-radius: 18px;
+    font-weight: 700;
+  }
+
+  .eventItem {
+    padding: 28px;
+    border-radius: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 18px;
+  }
+
+  .eventItem strong {
+    font-size: 26px;
+  }
+
+  .eventItem small {
+    font-size: 20px;
+  }
+
+  .actions {
+    top: 14px;
+    right: 14px;
+    gap: 10px;
+  }
+
+  .editBtn,
+  .delBtn {
+    width: 46px;
+    height: 46px;
+    font-size: 24px;
+    border-radius: 50%;
+  }
+
+  .editMode {
+    margin-top: 14px;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .editMode input {
+    height: 70px;
+    font-size: 22px;
+    border-radius: 18px;
+    padding: 0 18px;
+  }
+
+  .saveBtn,
+  .cancelBtn {
+    height: 70px;
+    font-size: 22px;
+    border-radius: 18px;
+  }
+
+  /* Безопасная зона под шапкой VK */
+  body {
+    padding-top: calc(40px + env(safe-area-inset-top));
+  }
+
+  /* Доп. исправления для длинных заголовков */
+  .eventItem strong {
+    word-break: break-word;
+  }
+}
