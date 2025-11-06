@@ -1,104 +1,161 @@
-/* style-mobile.css — улучшенная адаптация под мобильные экраны VK */
+/* style-mobile.css — мобильная версия интерфейса под VK WebView */
+/* Работает стабильно внутри ВКонтакте, без zoom и багов */
+
 @media (max-width: 700px) {
 
-  html {
-    zoom: 1.3;
-    /* было 1.6 — теперь умереннее */
-  }
-
+  html,
   body {
-    font-size: 18px;
-    padding: 24px 16px 64px;
+    font-size: 22px;
+    /* базовый масштаб шрифта (≈1em = 22px) */
     background: #f5f6f8;
+    color: #111;
+    padding: 24px 16px calc(70px + env(safe-area-inset-bottom));
     box-sizing: border-box;
   }
 
   h1 {
-    font-size: 26px;
-    margin: 6px 0 18px;
+    font-size: 1.3em;
+    /* ≈28px */
     text-align: center;
+    font-weight: 700;
+    margin: 10px 0 20px;
   }
 
+  /* Контейнер с полями */
   .controls {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
   }
 
   .controls input[type="text"],
   .controls input[type="date"] {
-    height: 58px;
-    font-size: 18px;
-    border-radius: 14px;
-    padding: 0 14px;
+    height: 3em;
+    /* ≈66px */
+    font-size: 1em;
+    padding: 0 0.9em;
+    border-radius: 0.8em;
+    border: 1px solid #ddd;
+    background: #fff;
+    box-sizing: border-box;
   }
 
   .controls button {
-    height: 58px;
-    font-size: 19px;
-    border-radius: 14px;
+    height: 3em;
+    font-size: 1em;
+    border-radius: 0.9em;
+    border: none;
+    background: #0077ff;
+    color: #fff;
     font-weight: 600;
     letter-spacing: 0.3px;
+    cursor: pointer;
   }
 
+  .controls button:active {
+    background: #0060d4;
+  }
+
+  /* Список событий */
   .eventItem {
-    padding: 20px 22px;
-    border-radius: 16px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    margin-bottom: 14px;
+    background: #fff;
+    border-radius: 1em;
+    padding: 1.2em;
+    margin-bottom: 1em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    position: relative;
   }
 
   .eventItem strong {
-    font-size: 20px;
-    line-height: 1.3;
+    display: block;
+    font-size: 1.05em;
+    /* ≈23px */
+    font-weight: 600;
+    margin-bottom: 0.3em;
+    word-break: break-word;
   }
 
   .eventItem small {
-    font-size: 16px;
-    color: #666;
+    font-size: 0.9em;
+    /* ≈20px */
+    color: #555;
   }
 
   .actions {
-    top: 10px;
-    right: 10px;
-    gap: 8px;
+    position: absolute;
+    top: 0.6em;
+    right: 0.6em;
+    display: flex;
+    gap: 0.4em;
   }
 
   .editBtn,
   .delBtn {
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
+    width: 2.2em;
+    /* ≈48px */
+    height: 2.2em;
+    font-size: 1em;
     border-radius: 50%;
+    border: none;
+    color: #fff;
+    display: grid;
+    place-items: center;
   }
 
+  .editBtn {
+    background: #ffa500;
+  }
+
+  .editBtn:active {
+    background: #e68a00;
+  }
+
+  .delBtn {
+    background: #ff5c5c;
+  }
+
+  .delBtn:active {
+    background: #d93535;
+  }
+
+  /* Режим редактирования */
   .editMode {
-    margin-top: 12px;
+    display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 12px;
+    margin-top: 1em;
   }
 
   .editMode input {
-    height: 54px;
-    font-size: 18px;
-    border-radius: 14px;
-    padding: 0 14px;
+    height: 2.8em;
+    font-size: 1em;
+    border-radius: 0.8em;
+    border: 1px solid #ccc;
+    padding: 0 0.8em;
+    box-sizing: border-box;
   }
 
   .saveBtn,
   .cancelBtn {
-    height: 54px;
-    font-size: 18px;
-    border-radius: 14px;
+    height: 2.8em;
+    font-size: 1em;
+    border-radius: 0.8em;
+    border: none;
+    color: #fff;
+    font-weight: 600;
   }
 
-  /* безопасная зона */
+  .saveBtn {
+    background: #0077ff;
+  }
+
+  .cancelBtn {
+    background: #9aa3ad;
+  }
+
+  /* Отступ от верхней панели ВК */
   body {
-    padding-top: calc(30px + env(safe-area-inset-top));
-  }
-
-  .eventItem strong {
-    word-break: break-word;
+    padding-top: calc(40px + env(safe-area-inset-top));
   }
 }
